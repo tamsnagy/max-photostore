@@ -1,1 +1,1 @@
-web: gradle bootRun -Dserver.port=$PORT $JAVA_OPTS
+web: gradle build && java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/*.jar
