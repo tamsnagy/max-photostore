@@ -1,4 +1,4 @@
-package com.max.photostore.session;
+package com.max.photostore.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
