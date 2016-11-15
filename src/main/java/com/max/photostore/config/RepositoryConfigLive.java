@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 
 import javax.sql.DataSource;
 import java.net.URI;
@@ -27,44 +28,17 @@ public class RepositoryConfigLive extends RepositoryConfig{
 
     @Bean
     public DataSource dataSource()  {
-//        final URI dbUri = new URI(System.getenv("DATABASE_URL"));
-//
-//        final String username = dbUri.getUserInfo().split(":")[0];
-//        final String password = dbUri.getUserInfo().split(":")[1];
-//        final String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
-//
-//        return DataSourceBuilder
-//                .create()
-//                .username(username)
-//                .password(password)
-//                .url(dbUrl)
-//                .driverClassName("org.postgresql.Driver")
-//                .build();
         return aDataSource();
     }
 
     @Bean
     public JedisConnectionFactory jedisConnFactory() {
-
-//        try {
-//            String redistogoUrl = System.getenv("REDIS_URL");
-//            URI redistogoUri = new URI(redistogoUrl);
-//
-//            JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory();
-//
-//            jedisConnFactory.setUsePool(true);
-//            jedisConnFactory.setHostName(redistogoUri.getHost());
-//            jedisConnFactory.setPort(redistogoUri.getPort());
-//            jedisConnFactory.setTimeout(Protocol.DEFAULT_TIMEOUT);
-//            jedisConnFactory.setPassword(redistogoUri.getUserInfo().split(":", 2)[1]);
-//
-//            return jedisConnFactory;
-//
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
         return aJedisConnFactory();
+    }
+
+    @Bean
+    public static ConfigureRedisAction configureRedisAction() {
+        return ConfigureRedisAction.NO_OP;
     }
 
     @Override
