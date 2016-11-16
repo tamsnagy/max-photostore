@@ -2,6 +2,7 @@ package com.max.photostore.controller;
 
 import com.max.photostore.domain.Album;
 import com.max.photostore.domain.AppUser;
+import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.CreateAlbum;
 import com.max.photostore.service.AlbumService;
@@ -41,7 +42,11 @@ class AlbumController {
         final String userId = principal.getName();
         final AppUser owner = userRepository.findOne(Long.valueOf(userId));
         System.out.println("new userid: " + userId);
-        albumService.createAlbum(groupId, request, owner);
+        try {
+            albumService.createAlbum(groupId, request, owner);
+        } catch (PhotostoreException e) {
+            ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().build();
     }
 
