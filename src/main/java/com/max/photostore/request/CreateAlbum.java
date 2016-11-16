@@ -10,6 +10,10 @@ public class CreateAlbum {
         this.parentAlbum = parentAlbum;
     }
 
+    public CreateAlbum(String name) {
+        this.name = name;
+    }
+
     public CreateAlbum() {
     }
 }
