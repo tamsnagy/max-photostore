@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,5 +43,19 @@ public class Album {
     }
 
     public Album() {
+    }
+
+    public void addAlbum(Album album) {
+        if(albumList == null) {
+            albumList = new ArrayList<>();
+        }
+        albumList.add(album);
+    }
+
+    public void addPicture(Picture picture) {
+        if(pictureList == null) {
+            pictureList = new ArrayList<>();
+        }
+        pictureList.add(picture);
     }
 }

@@ -2,11 +2,14 @@ package com.max.photostore.service;
 
 import com.max.photostore.domain.Album;
 import com.max.photostore.domain.AppUser;
+import com.max.photostore.exception.PhotostoreException;
+import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.repository.AlbumRepository;
 import com.max.photostore.request.CreateAlbum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -20,12 +23,17 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void createAlbum(Long groupId, CreateAlbum request, AppUser owner) {
+    public void createAlbum(Long groupId, CreateAlbum request, AppUser owner) throws PhotostoreException{
+        final Album album = new Album(request.name, new Date(), owner, Collections.emptyList(), Collections.emptyList());
         if(request.parentAlbum == null) {
-            final Album album = new Album(request.name, new Date(), owner, Collections.emptyList(), Collections.emptyList());
             albumRepository.save(album);
         } else {
-            //TODO query for parent, and add it there.
+            Album parentAlbum = albumRepository.findOne(request.parentAlbum);
+            if (parentAlbum == null) {
+                throw new ResourceMissingException("Parent album does not exist");
+            }
+            parentAlbum.addAlbum(album);
+            albumRepository.save(Arrays.asList(album, parentAlbum));
         }
     }
 }
