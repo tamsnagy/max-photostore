@@ -1,7 +1,9 @@
 package com.max.photostore.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,10 +27,10 @@ public class Album {
     @ManyToOne
     private AppUser owner;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Picture> pictureList;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Album> albumList;
 
     //TODO: Add groups
@@ -57,5 +59,29 @@ public class Album {
             pictureList = new ArrayList<>();
         }
         pictureList.add(picture);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public AppUser getOwner() {
+        return owner;
+    }
+
+    public List<Picture> getPictureList() {
+        return pictureList;
+    }
+
+    public List<Album> getAlbumList() {
+        return albumList;
     }
 }

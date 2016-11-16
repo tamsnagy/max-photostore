@@ -5,6 +5,7 @@ import com.max.photostore.domain.AppUser;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.CreateAlbum;
+import com.max.photostore.response.GetAlbum;
 import com.max.photostore.service.AlbumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,12 +43,25 @@ class AlbumController {
         final String userId = principal.getName();
         final AppUser owner = userRepository.findOne(Long.valueOf(userId));
         System.out.println("new userid: " + userId);
+        //TODO can I create album here??
         try {
             albumService.createAlbum(groupId, request, owner);
         } catch (PhotostoreException e) {
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().build();
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/{albumId}")
+    ResponseEntity<?> getAlbum(@PathVariable Long albumId, Principal principal) {
+        final String userId = principal.getName();
+        final AppUser owner = userRepository.findOne(Long.valueOf(userId));
+        System.out.println("new userid: " + userId);
+        //TODO can I see that album??
+        try {
+            return ResponseEntity.ok(albumService.getAlbum(albumId));
+        } catch (PhotostoreException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
