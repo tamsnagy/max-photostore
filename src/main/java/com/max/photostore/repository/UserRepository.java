@@ -1,9 +1,9 @@
 package com.max.photostore.repository;
 
-import com.max.photostore.domain.User;
+import com.max.photostore.domain.AppUser;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, Long> {
+public interface UserRepository extends CrudRepository<AppUser, Long> {
 }
