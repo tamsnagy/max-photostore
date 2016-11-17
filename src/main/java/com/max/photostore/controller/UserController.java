@@ -2,14 +2,21 @@ package com.max.photostore.controller;
 
 import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.SignupException;
-import com.max.photostore.request.RegisterUser;
+import com.max.photostore.request.LoginRequest;
+import com.max.photostore.request.RegisterUserRequest;
 import com.max.photostore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
+@RequestMapping(
+        headers = {"content-type=application/json"},
+        value = "/api")
 public class UserController {
     private final UserService userService;
 
@@ -18,16 +25,26 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(
-            headers = {"content-type=application/json"},
-            value = "/signup", method = RequestMethod.POST)
+    @RequestMapping(value = "/signup", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> signup(@RequestBody RegisterUser request) {
+    public ResponseEntity<?> signup(@RequestBody RegisterUserRequest request) {
         try {
             userService.signup(request.username, request.email, request.password);
         } catch (SignupException | InternalServerErrorException e) {
             return e.buildResponse();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+        try {
+            return userService.login(request.username, request.password)
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (InternalServerErrorException e) {
+            return e.buildResponse();
+        }
     }
 }

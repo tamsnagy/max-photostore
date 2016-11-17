@@ -1,13 +1,13 @@
 package com.max.photostore.request;
 
-public class RegisterUser {
+public class RegisterUserRequest {
     public String username;
     public String email;
     public String password;
 
-    public RegisterUser() {}
+    public RegisterUserRequest() {}
 
-    public RegisterUser(String username, String email, String password) {
+    public RegisterUserRequest(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;

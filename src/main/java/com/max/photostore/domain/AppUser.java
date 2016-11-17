@@ -1,28 +1,24 @@
 package com.max.photostore.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(nullable = false)
     private Long id;
 
-    @Column(name = "username", nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(name = "email", nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private byte[] password;
 
-    @Column(name = "salt", nullable = false)
+    @Column(nullable = false)
     private byte[] salt;
 
     public AppUser(String username, String email, byte[] password, byte[] salt) {

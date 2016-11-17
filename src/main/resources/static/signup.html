@@ -11,16 +11,23 @@
     $(document).ready(function() {
         $("#sign-up-button").on("click", function() {
            $.ajax({
-               url: "/signup",
+               url: "/api/signup",
                type: "POST",
                data: JSON.stringify($("#sign-up-form").serializeObject()),
                cache: "false",
                contentType: "application/json",
+               beforeSend: function() {
+                   $("#sign-up-button").prop("disabled", true);
+                   $("#sign-up-message").text("");
+               },
                success: function() {
-                   $("#sign-up-message").text("Successful registration");
+                   window.location.replace("login.html");
                },
                error: function(xhr, status, error) {
                    $("#sign-up-message").text(xhr.responseText);
+               },
+               complete: function() {
+                   $("#sign-up-button").prop("disabled", false);
                }
            });
         });

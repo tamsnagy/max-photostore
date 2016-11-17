@@ -5,6 +5,12 @@ import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.SignupException;
 import com.max.photostore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -13,7 +19,8 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,9 +50,9 @@ public class UserServiceImpl implements UserService {
         if (!validatePassword(password))
             throw new SignupException("Invalid password");
 
-        if (!userRepository.findByUsername(username).isEmpty())
+        if (userRepository.findOneByUsername(username) != null)
             throw new SignupException("Username already in use");
-        if (!userRepository.findByEmail(email).isEmpty())
+        if (userRepository.findOneByEmail(email) != null)
             throw new SignupException("Email already in use");
 
         byte[] salt = generateSalt();
@@ -60,6 +67,31 @@ public class UserServiceImpl implements UserService {
         userRepository.save(newUser);
     }
 
+    @Override
+    public boolean login(String username, String password) throws InternalServerErrorException {
+        if (username == null || password == null)
+            return false;
+
+        AppUser user = userRepository.findOneByUsername(username);
+        if (user == null)
+            return false;
+
+        try {
+            boolean success = checkPassword(password.toCharArray(), user.getSalt(), user.getPassword());
+            if (!success)
+                return false;
+
+            Set<GrantedAuthority> authorities = new HashSet<>();
+            authorities.add(new SimpleGrantedAuthority("USER")); // TODO bszalai
+            UserDetails userDetails = new User(username, password, authorities);
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(token);
+            return true;
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            throw new InternalServerErrorException(e);
+        }
+    }
+
     private boolean validateUsername(final String username) {
         if (username == null)
             return false;
@@ -67,9 +99,7 @@ public class UserServiceImpl implements UserService {
             if (!Character.isLetterOrDigit(c))
                 return false;
         int length = username.length();
-        if (length < MIN_USERNAME_LENGTH || length > MAX_USERNAME_LENGTH)
-            return false;
-        return true;
+        return !(length < MIN_USERNAME_LENGTH || length > MAX_USERNAME_LENGTH);
     }
 
     private boolean validateEmail(final String email) {
@@ -87,9 +117,7 @@ public class UserServiceImpl implements UserService {
             if (!Character.isLetterOrDigit(c))
                 return false;
         int length = password.length();
-        if (length < MIN_PASSWORD_LENGTH)
-            return false;
-        return true;
+        return length >= MIN_PASSWORD_LENGTH;
     }
 
     private byte[] generateSalt() {
@@ -102,11 +130,10 @@ public class UserServiceImpl implements UserService {
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
         PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLength);
         SecretKey key = skf.generateSecret(spec);
-        byte[] res = key.getEncoded();
-        return res;
+        return key.getEncoded();
     }
 
-    private boolean checkPassword(final char[] password, final byte[] salt, final char[] expectedHash) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    private boolean checkPassword(final char[] password, final byte[] salt, final byte[] expectedHash) throws InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] passwordHash = hashPassword(password, salt, ITERATIONS, KEY_LENGTH);
         if (passwordHash.length != expectedHash.length)
             return false;

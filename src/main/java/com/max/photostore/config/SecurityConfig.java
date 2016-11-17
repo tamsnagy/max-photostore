@@ -13,11 +13,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/css/**", "/index", "/reg", "/signup").permitAll()
+                .antMatchers(
+                        "/", "/css/**", "/js/**",
+                        "/index.html", "/signup.html", "/login.html",
+                        "/api/signup", "/api/login").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login").failureUrl("/login-error");
+                .loginPage("/login.html");
 
         http.csrf().disable();
     }
