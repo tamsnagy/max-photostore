@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -90,6 +92,13 @@ public class UserServiceImpl implements UserService {
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new InternalServerErrorException(e);
         }
+    }
+
+    @Override
+    public void logout(HttpSession session) {
+        SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
+        if (session != null)
+            session.invalidate();
     }
 
     private boolean validateUsername(final String username) {

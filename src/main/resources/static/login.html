@@ -20,14 +20,11 @@
                     $("#log-in-button").prop("disabled", true);
                     $("#log-in-message").text("");
                 },
-                success: function() {
+                success: function(xhr, status, error) {
                     window.location.replace("protected.html");
                 },
                 error: function(xhr, status, error) {
                     $("#log-in-message").text(xhr.status == 401 ? "Invalid username or password" : xhr.responseText);
-                },
-                complete: function() {
-                    $("#log-in-button").prop("disabled", false);
                 }
             });
         });
