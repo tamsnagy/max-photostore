@@ -4,26 +4,30 @@
 <head>
     <!-- JQuery import -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="/js/scripts.js"></script>
 </head>
 
 <script>
     $(document).ready(function() {
-        $("#signupbutton").on("click", signup);
-        /*$('#sign-up-form').submit(function() {
-            $.post("/signup", $("#sign-up-form").serialize(), function() { alert("valami") });
-        });*/
+        $("#sign-up-button").on("click", function() {
+           $.ajax({
+               url: "/signup",
+               type: "POST",
+               data: JSON.stringify($("#sign-up-form").serializeObject()),
+               cache: "false",
+               contentType: "application/json",
+               success: function() { alert("ok"); },
+               error: function() { alert("not ok"); }
+           });
+        });
     });
-
-    function signup() {
-        $.post("/signup", $("#sign-up-form").serialize(), function() { alert("valami") });
-    }
 </script>
 
 <body>
 
 <a href="index.html">Back</a>
 
-<form id="sign-up-form" method="post">
+<form id="sign-up-form">
     <table>
         <tr>
             <td>Username</td>
@@ -38,7 +42,7 @@
             <td><input id="sign-up-password" name="password" type="password" /></td>
         </tr>
         <tr>
-            <td colspan="2"><input id="signupbutton" type="submit" value="Sign up" /></td>
+            <td colspan="2"><input id="sign-up-button" type="button" value="Sign up" /></td>
         </tr>
     </table>
 </form>
