@@ -19,7 +19,7 @@ import java.security.Principal;
 import java.util.Collection;
 
 @Controller
-@RequestMapping("/album")
+@RequestMapping("/api/album")
 class AlbumController {
     private final AlbumService albumService;
     private final UserRepository userRepository;
