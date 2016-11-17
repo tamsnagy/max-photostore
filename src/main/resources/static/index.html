@@ -4,9 +4,17 @@
 <head>
     <!-- JQuery import -->
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="/js/scripts.js"></script>
 </head>
 
 <body>
+
+<a href="signup.html">Sign up</a><br />
+<a id="log-in-link" href="login.html">Log in</a><br />
+<a id="log-out-link" href="javascript:;">Log out</a><br />
+<a href="protected.html">Protected page</a>
+
+<hr />
 
 <!-- Upload file form -->
 <form id="upload-file-form">
@@ -26,6 +34,21 @@
     // is chosen)
     $(document).ready(function() {
         $("#upload-file-input").on("change", uploadFile);
+
+        $("#log-out-link").on("click", function() {
+            $.ajax({
+                url: "/api/logout",
+                type: "POST",
+                cache: "false",
+                contentType: "application/json",
+                beforeSend: function() {
+                    $("#log-out-link").prop("disabled", true);
+                },
+                success: function() {
+                    window.location.replace("index.html");
+                }
+            });
+        });
     });
 
     /**

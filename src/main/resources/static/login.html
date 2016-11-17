@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- JQuery import -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="/js/scripts.js"></script>
+</head>
+
+<script>
+    $(document).ready(function() {
+        $("#log-in-button").on("click", function() {
+            $.ajax({
+                url: "/api/login",
+                type: "POST",
+                data: JSON.stringify($("#log-in-form").serializeObject()),
+                cache: "false",
+                contentType: "application/json",
+                beforeSend: function() {
+                    $("#log-in-button").prop("disabled", true);
+                    $("#log-in-message").text("");
+                },
+                success: function(xhr, status, error) {
+                    window.location.replace("protected.html");
+                },
+                error: function(xhr, status, error) {
+                    $("#log-in-message").text(xhr.status == 401 ? "Invalid username or password" : xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+<body>
+
+<a href="index.html">Back</a>
+
+<form id="log-in-form">
+    <table>
+        <tr>
+            <td>Username</td>
+            <td><input id="log-in-username" name="username" type="text" /></td>
+        </tr>
+        <tr>
+            <td>Password</td>
+            <td><input id="log-in-password" name="password" type="password" /></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input id="log-in-button" type="button" value="Log in" /></td>
+        </tr>
+    </table>
+</form>
+
+<span id="log-in-message"></span>
+
+</body>
+
+</html>
