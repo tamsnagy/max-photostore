@@ -37,9 +37,6 @@ public class PhotostoreApplicationTests {
     private static RedisServer redisServer;
 
     @Autowired
-    private ApplicationContext context;
-
-    @Autowired
     private AlbumService albumService;
 
     @Autowired
@@ -50,6 +47,8 @@ public class PhotostoreApplicationTests {
 
     private static AppUser user;
 
+    private static final String USERNAME = "testUserName";
+
     @BeforeClass
     public static void setUp() throws IOException {
         redisServer = RedisServer.builder()
@@ -58,10 +57,7 @@ public class PhotostoreApplicationTests {
 
         redisServer.start();
 
-        user = new AppUser();
-        user.setId(1L);
-        user.setUsername("testUserName");
-
+        user = new AppUser(USERNAME, "test@test.com", "password1".getBytes(), "salt".getBytes());
     }
 
     @AfterClass
@@ -78,13 +74,13 @@ public class PhotostoreApplicationTests {
 	public void testAlbumCreation() throws PhotostoreException {
         Long parentId = null;
 
-        albumService.createAlbum(2L, new CreateAlbum("parentAlbum"), user);
+        albumService.createAlbum(2L, new CreateAlbum("parentAlbum"), USERNAME);
         assertEquals(1, albumRepository.count());
         for(Album album: albumRepository.findAll()) {
             parentId = album.getId();
         }
-        albumService.createAlbum(2L, new CreateAlbum("childAlbum1", parentId), user);
-        albumService.createAlbum(2L, new CreateAlbum("childAlbum2", parentId), user);
+        albumService.createAlbum(2L, new CreateAlbum("childAlbum1", parentId), USERNAME);
+        albumService.createAlbum(2L, new CreateAlbum("childAlbum2", parentId), USERNAME);
         assertEquals(3, albumRepository.count());
         Album test = albumRepository.findOne(parentId);
         assertEquals(2, test.getAlbumList().size());

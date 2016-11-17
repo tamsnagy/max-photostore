@@ -23,9 +23,9 @@ public class PictureServiceImpl implements PictureService {
     }
 
     @Override
-    public Long uploadPicture(byte[] bytes, String originalFilename, Long owner, Long albumId) {
+    public Long uploadPicture(byte[] bytes, String originalFilename, String owner, Long albumId) {
         //TODO save with two sizes: orig, small
-        AppUser user = userRepository.findOne(owner);
+        AppUser user = userRepository.findOneByUsername(owner);
         Album parentAlbum = albumRepository.findOne(albumId);
         Picture picture = new Picture(originalFilename, bytes, user, parentAlbum);
         picture = pictureRepository.save(picture);

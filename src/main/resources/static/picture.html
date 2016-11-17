@@ -6,9 +6,9 @@
         {
             $.ajax({
                 type: "GET",
-                url: "/downloadFile",
+                url: "/api/picture/1",
                 success: function(response) {
-                    $("#lastImage").attr("src", "data:image/jpeg;base64," + response);
+                    $("#lastImage").attr("src", "data:image/jpeg;base64," + response.content);
                 },
                 error: function (xhr, status) {
                     alert('Unknown error ' + status);
@@ -24,6 +24,6 @@
 
     <br />
     <hr />
-    <a href="index.html">Back to file upload</a>
+    <a href="protected.html">Back to file upload</a>
 </body>
 </html>

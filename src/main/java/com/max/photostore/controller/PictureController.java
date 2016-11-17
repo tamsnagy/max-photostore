@@ -1,6 +1,5 @@
 package com.max.photostore.controller;
 
-import com.max.photostore.domain.Picture;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.UpdatePicture;
 import com.max.photostore.service.PictureService;
@@ -29,10 +28,9 @@ class PictureController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/{albumId}")
     ResponseEntity<?> uploadPicture(@PathVariable Long albumId, @RequestParam("uploadfile") MultipartFile uploadfile, Principal principal) {
-        final Long owner = Long.valueOf(principal.getName());
         //TODO validate upload
         try {
-            return ResponseEntity.ok(pictureService.uploadPicture(uploadfile.getBytes(), uploadfile.getOriginalFilename(), owner, albumId));
+            return ResponseEntity.ok(pictureService.uploadPicture(uploadfile.getBytes(), uploadfile.getOriginalFilename(), principal.getName(), albumId));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
