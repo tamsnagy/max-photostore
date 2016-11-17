@@ -16,8 +16,12 @@
                data: JSON.stringify($("#sign-up-form").serializeObject()),
                cache: "false",
                contentType: "application/json",
-               success: function() { alert("ok"); },
-               error: function() { alert("not ok"); }
+               success: function() {
+                   $("#sign-up-message").text("Successful registration");
+               },
+               error: function(xhr, status, error) {
+                   $("#sign-up-message").text(xhr.responseText);
+               }
            });
         });
     });
@@ -46,6 +50,8 @@
         </tr>
     </table>
 </form>
+
+<span id="sign-up-message"></span>
 
 </body>
 
