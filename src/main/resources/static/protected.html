@@ -11,7 +11,7 @@
     $(document).ready(function() {
         $("#log-out-link").on("click", function() {
             $.ajax({
-                url: "/api/logout",
+                url: "/api/user/logout",
                 type: "POST",
                 cache: "false",
                 contentType: "application/json",
@@ -67,6 +67,7 @@
 <body>
 
 <a id="log-out-link" href="javascript:;">Log out</a><br />
+<a href="groups.html">Groups</a><br />
 
 <br/>
 <br/>

@@ -1,6 +1,7 @@
 package com.max.photostore.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class AppUser {
@@ -20,6 +21,12 @@ public class AppUser {
 
     @Column(nullable = false)
     private byte[] salt;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
+    private Set<AppGroup> ownedGroups;
+
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "members")
+    private Set<AppGroup> groups;
 
     public AppUser(String username, String email, byte[] password, byte[] salt) {
         this.username = username;
@@ -68,5 +75,21 @@ public class AppUser {
 
     public void setSalt(byte[] salt) {
         this.salt = salt;
+    }
+
+    public Set<AppGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<AppGroup> groups) {
+        this.groups = groups;
+    }
+
+    public Set<AppGroup> getOwnedGroups() {
+        return ownedGroups;
+    }
+
+    public void setOwnedGroups(Set<AppGroup> ownedGroups) {
+        this.ownedGroups = ownedGroups;
     }
 }
