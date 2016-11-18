@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequestMapping(
         headers = {"content-type=application/json"},
-        value = "/api")
+        value = "/api/user")
 public class UserController {
     private final UserService userService;
 

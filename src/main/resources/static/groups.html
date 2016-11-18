@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- JQuery import -->
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="/js/scripts.js"></script>
+</head>
+
+<script>
+    function refreshGroups() {
+        $.ajax({
+            url: "/api/group/",
+            type: "GET",
+            cache: "false",
+            contentType: "application/json",
+            success: function(xhr, status, error) {
+                $("#my-groups-list").find("option").remove().end();
+                $.each(xhr.data, function(i, item) {
+                    $("#my-groups-list").append($("<option>", {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        refreshGroups();
+
+        $("#create-group-button").on("click", function() {
+            $.ajax({
+                url: "/api/group/",
+                type: "PUT",
+                data: JSON.stringify($("#create-group-form").serializeObject()),
+                cache: "false",
+                contentType: "application/json",
+                beforeSend: function() {
+                    $("#create-group-button").prop("disabled", true);
+                },
+                success: function() {
+                    alert("Group successfully created");
+                    refreshGroups();
+                },
+                error: function(xhr, status, error) {
+                    alert(xhr.responseText);
+                },
+                complete: function() {
+                    $("#create-group-button").prop("disabled", false);
+                }
+            });
+        });
+
+        $("#delete-group-button").on("click", function() {
+            var groupId = $("#my-groups-list option:selected").val();
+            if (groupId === undefined)
+                return;
+            $.ajax({
+                url: "/api/group/" + groupId,
+                type: "DELETE",
+                cache: "false",
+                contentType: "application/json",
+                beforeSend: function() {
+                    $("#delete-group-button").prop("disabled", true);
+                },
+                success: function() {
+                    alert("Group successfully deleted");
+                    refreshGroups();
+                },
+                error: function(xhr, status, error) {
+                    alert(xhr.responseText);
+                },
+                complete: function() {
+                    $("#delete-group-button").prop("disabled", false);
+                }
+            });
+        });
+    });
+</script>
+
+<body>
+
+<h1>Member in groups</h1>
+<select id="my-groups-list" size="10" style="width: 50%"></select><br />
+<button id="delete-group-button">Delete group</button><br />
+
+<form id="create-group-form">
+    <table>
+        <tr>
+            <td>Name</td>
+            <td><input name="name" type="text"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input id="create-group-button" type="button" value="Create group" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+</body>
+
+</html>

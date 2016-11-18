@@ -11,7 +11,7 @@
     $(document).ready(function() {
         $("#log-in-button").on("click", function() {
             $.ajax({
-                url: "/api/login",
+                url: "/api/user/login",
                 type: "POST",
                 data: JSON.stringify($("#log-in-form").serializeObject()),
                 cache: "false",

@@ -27,7 +27,7 @@
 
         $("#log-out-link").on("click", function() {
             $.ajax({
-                url: "/api/logout",
+                url: "/api/user/logout",
                 type: "POST",
                 cache: "false",
                 contentType: "application/json",
