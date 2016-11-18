@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GetAlbum {
-    private Long id;
-    private String name;
-    private Date timestamp;
-    private AppUser owner;
-    private List<Picture> pictureList;
-    private List<Long> albumList;
+    public Long id;
+    public String name;
+    public Date timestamp;
+    public AppUser owner;
+    public List<Picture> pictureList;
+    public List<Long> albumList;
 
     public GetAlbum(Album album) {
         this.id = album.getId();
@@ -27,5 +27,4 @@ public class GetAlbum {
 
     public GetAlbum() {
     }
-
 }

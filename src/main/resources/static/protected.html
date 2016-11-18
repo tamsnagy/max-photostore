@@ -4,7 +4,8 @@
 <head>
     <!-- JQuery import -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="/js/scripts.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/home.js"></script>
 </head>
 
 <script>
@@ -62,6 +63,8 @@
             });
         });
     });
+
+    $(document).ready(listAlbums());
 </script>
 
 <body>
@@ -87,6 +90,15 @@
 </form>
 <br />
 <hr />
+
+<div id="albums-div">
+    <table id="albums-table"></table>
+</div>
+
+<div id="album-view">
+    <table id="albums-in-album"></table>
+    <table id="pictures-in-album"></table>
+</div>
 
 <a href="picture.html">Show last uploaded picture</a>
 

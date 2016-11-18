@@ -30,6 +30,7 @@ public class PictureServiceImpl implements PictureService {
         Picture picture = new Picture(originalFilename, bytes, user, parentAlbum);
         picture = pictureRepository.save(picture);
         parentAlbum.addPicture(picture);
+        albumRepository.save(parentAlbum);
         return picture.getId(); //TODO maybe return picture.
     }
 

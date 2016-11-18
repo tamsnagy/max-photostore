@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AlbumServiceImpl implements AlbumService {
@@ -51,5 +53,15 @@ public class AlbumServiceImpl implements AlbumService {
             throw new ResourceMissingException("Parent album does not exist");
         }
         return new GetAlbum(album);
+    }
+
+    @Override
+    public List<GetAlbum> listAlbums(String user) throws ResourceMissingException {
+        AppUser owner = userRepository.findOneByUsername(user);
+        if(owner == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        List<Album> albumList = albumRepository.findByOwner(owner);
+        return albumList.stream().map(GetAlbum::new).collect(Collectors.toList());
     }
 }
