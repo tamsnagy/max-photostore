@@ -24,12 +24,70 @@
             });
         });
     });
+
+    $(document).ready(function () {
+        $("#upload-file-form").on("click", function() {
+            $.ajax({
+                url: "/api/picture/1",
+                type: "POST",
+                data: new FormData($("#upload-file-form")[0]),
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                cache: false,
+                success: function () {
+                    // Handle upload success
+                    $("#upload-file-message").text("File succesfully uploaded");
+                },
+                error: function () {
+                    // Handle upload error
+                    $("#upload-file-message").text(
+                            "File not uploaded (perhaps it's too much big)");
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $("#create-album").on("click", function() {
+            $.ajax({
+                url: "/api/album/1", //1 is groupId
+                type: "POST",
+                data: JSON.stringify($("#create-album").serializeObject()),
+                cache: "false",
+                contentType: "application/json",
+                error: function(xhr, status, error) {
+                    $("#sign-up-message").text(xhr.responseText);
+                }
+            });
+        });
+    });
 </script>
 
 <body>
 
 <a id="log-out-link" href="javascript:;">Log out</a><br />
-Some protected stuff...
+
+<br/>
+<br/>
+
+<form id="create-album">
+    <label>Album name</label>
+    <input type="text" name="name">
+    <input type="button" value="Create Album">
+</form>
+
+<!-- Upload file form -->
+<form id="upload-file-form">
+    <label for="upload-file-input">Upload your file:</label>
+    <input id="upload-file-input" type="file" name="uploadfile" accept="*" />
+    <br />
+    <span id="upload-file-message"></span>
+</form>
+<br />
+<hr />
+
+<a href="picture.html">Show last uploaded picture</a>
 
 </body>
 
