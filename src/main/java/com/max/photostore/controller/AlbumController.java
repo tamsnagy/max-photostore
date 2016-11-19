@@ -33,11 +33,11 @@ class AlbumController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{groupId}")
-    ResponseEntity<?> createAlbum(@PathVariable Long groupId, @RequestBody CreateAlbum request, Principal principal) {
+    @RequestMapping(method = RequestMethod.POST)
+    ResponseEntity<?> createAlbum(@RequestBody CreateAlbum request, Principal principal) {
         //TODO can I create album here??
         try {
-            albumService.createAlbum(groupId, request, principal.getName());
+            albumService.createAlbum(request, principal.getName());
         } catch (PhotostoreException e) {
             return ResponseEntity.notFound().build();
         }

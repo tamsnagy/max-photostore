@@ -89,13 +89,13 @@ public class PhotostoreApplicationTests {
 	public void testAlbumCreation() throws PhotostoreException {
         Long parentId = null;
 
-        albumService.createAlbum(2L, new CreateAlbum("parentAlbum"), USERNAME);
+        albumService.createAlbum(new CreateAlbum("parentAlbum"), USERNAME);
         assertEquals(1, albumRepository.count());
         for(Album album: albumRepository.findAll()) {
             parentId = album.getId();
         }
-        albumService.createAlbum(2L, new CreateAlbum("childAlbum1", parentId), USERNAME);
-        albumService.createAlbum(2L, new CreateAlbum("childAlbum2", parentId), USERNAME);
+        albumService.createAlbum(new CreateAlbum("childAlbum1", parentId), USERNAME);
+        albumService.createAlbum(new CreateAlbum("childAlbum2", parentId), USERNAME);
         assertEquals(3, albumRepository.count());
         Album test = albumRepository.findOne(parentId);
         assertEquals(2, test.getAlbumList().size());
@@ -105,7 +105,7 @@ public class PhotostoreApplicationTests {
     @Test
     public void testPictureUpload() throws PhotostoreException {
         Long albumId = null;
-        albumService.createAlbum(2L, new CreateAlbum("parentAlbum"), USERNAME);
+        albumService.createAlbum(new CreateAlbum("parentAlbum"), USERNAME);
         for(Album album: albumRepository.findAll()) {
             albumId = album.getId();
         }

@@ -31,16 +31,17 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     @Transactional
-    public void createAlbum(Long groupId, CreateAlbum request, String owner) throws PhotostoreException{
+    public void createAlbum(CreateAlbum request, String owner) throws PhotostoreException{
         final AppUser user = userRepository.findOneByUsername(owner);
-        final Album album = new Album(request.name, new Date(), user, Collections.emptyList(), Collections.emptyList());
         if(request.parentAlbum == null) {
+            final Album album = new Album(request.name, new Date(), user, null, Collections.emptyList(), Collections.emptyList());
             albumRepository.save(album);
         } else {
             Album parentAlbum = albumRepository.findOne(request.parentAlbum);
             if (parentAlbum == null) {
                 throw new ResourceMissingException("Parent album does not exist");
             }
+            final Album album = new Album(request.name, new Date(), user, parentAlbum, Collections.emptyList(), Collections.emptyList());
             parentAlbum.addAlbum(album);
             albumRepository.save(Arrays.asList(album, parentAlbum));
         }

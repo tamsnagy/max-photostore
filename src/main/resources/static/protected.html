@@ -6,6 +6,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="js/scripts.js"></script>
     <script src="js/home.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <script>
@@ -27,42 +28,9 @@
     });
 
     $(document).ready(function () {
-        $("#upload-file-form").on("click", function() {
-            $.ajax({
-                url: "/api/picture/1",
-                type: "POST",
-                data: new FormData($("#upload-file-form")[0]),
-                enctype: 'multipart/form-data',
-                processData: false,
-                contentType: false,
-                cache: false,
-                success: function () {
-                    // Handle upload success
-                    $("#upload-file-message").text("File succesfully uploaded");
-                },
-                error: function () {
-                    // Handle upload error
-                    $("#upload-file-message").text(
-                            "File not uploaded (perhaps it's too much big)");
-                }
-            });
-        });
+
     });
 
-    $(document).ready(function() {
-        $("#create-album").on("click", function() {
-            $.ajax({
-                url: "/api/album/1", //1 is groupId
-                type: "POST",
-                data: JSON.stringify($("#create-album").serializeObject()),
-                cache: "false",
-                contentType: "application/json",
-                error: function(xhr, status, error) {
-                    $("#sign-up-message").text(xhr.responseText);
-                }
-            });
-        });
-    });
 
     $(document).ready(listAlbums());
 </script>
@@ -75,32 +43,39 @@
 <br/>
 <br/>
 
-<form id="create-album">
-    <label>Album name</label>
-    <input type="text" name="name">
-    <input type="button" value="Create Album">
-</form>
+<p id="current-album-display-tag"></p>
 
-<!-- Upload file form -->
-<form id="upload-file-form">
-    <label for="upload-file-input">Upload your file:</label>
-    <input id="upload-file-input" type="file" name="uploadfile" accept="*" />
-    <br />
-    <span id="upload-file-message"></span>
-</form>
-<br />
-<hr />
+<div class="container">
+    <div class="left">
+        <form id="create-album">
+            <label>Album name</label>
+            <input type="text" name="name">
+            <input type="button" value="Create Album" onclick="createAlbum()">
+        </form>
+    </div>
 
-<div id="albums-div">
-    <table id="albums-table"></table>
+    <div class="right">
+        <!-- Upload file form -->
+        <form id="upload-file-form">
+            <label for="upload-file-input">Upload your file:</label>
+            <input id="upload-file-input" type="file" name="uploadfile" accept="*" onsubmit="uploadPicture()"/>
+            <br />
+            <span id="upload-file-message"></span>
+        </form>
+        <br />
+        <hr />
+
+        <div id="albums-div">
+            <table id="albums-table"></table>
+        </div>
+
+        <div id="album-view">
+            <div id="go-back-to-album"></div>
+            <table id="albums-in-album"></table>
+            <table id="pictures-in-album"></table>
+        </div>
+    </div>
 </div>
-
-<div id="album-view">
-    <table id="albums-in-album"></table>
-    <table id="pictures-in-album"></table>
-</div>
-
-<a href="picture.html">Show last uploaded picture</a>
 
 </body>
 
