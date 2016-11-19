@@ -109,7 +109,7 @@ public class PhotostoreApplicationTests {
         for(Album album: albumRepository.findAll()) {
             albumId = album.getId();
         }
-        final byte[] content = "pivtureContent".getBytes();
+        final byte[] content = "pictureContent".getBytes();
         final String name = "testPictureName";
         Long pictureId = pictureService.uploadPicture(content, name, USERNAME, albumId);
 
@@ -122,7 +122,7 @@ public class PhotostoreApplicationTests {
         assertEquals(1, pictureList.size());
         Picture pictureFromAlbum = pictureList.get(0);
         Picture pictureFromDB = pictureRepository.findOne(pictureId);
-        
+
         assertEquals(pictureFromAlbum.getName(), pictureFromDB.getName());
     }
 
