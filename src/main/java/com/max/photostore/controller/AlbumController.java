@@ -62,4 +62,14 @@ class AlbumController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{albumId}")
+    ResponseEntity<?> deleteAlbum(@PathVariable Long albumId, Principal principal){
+        try {
+            albumService.deleteAlbum(albumId, principal.getName());
+            return ResponseEntity.ok().build();
+        } catch (PhotostoreException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
