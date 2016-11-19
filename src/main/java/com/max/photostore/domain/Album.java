@@ -1,5 +1,7 @@
 package com.max.photostore.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,12 +23,15 @@ public class Album {
     private AppUser owner;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Picture> pictureList;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Album> albumList;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "albums")
+    @JsonManagedReference
     private Set<AppGroup> groups;
 
     public Album(String name, Date timestamp, AppUser owner, List<Picture> pictureList, List<Album> albumList) {

@@ -1,5 +1,6 @@
 package com.max.photostore.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.max.photostore.request.UpdatePicture;
 
 import javax.persistence.Column;
@@ -29,9 +30,11 @@ public class Picture {
     private byte[] content;
 
     @ManyToOne
+    @JsonBackReference
     private AppUser owner;
 
     @ManyToOne
+    @JsonBackReference
     private Album album;
 
     public Picture(String name, String note, String location, Date timestamp, byte[] content, AppUser owner, Album album) {
