@@ -16,37 +16,8 @@
 
 <a href="signup.html">Sign up</a><br />
 <a id="log-in-link" href="login.html">Log in</a><br />
-<a id="log-out-link" href="javascript:;">Log out</a><br />
-<a href="protected.html">Protected page</a>
 
 <hr />
-
-
-
-<script>
-
-    // bind the on-change event for the input element (triggered when a file
-    // is chosen)
-    $(document).ready(function() {
-        $("#upload-file-input").on("change", uploadFile);
-
-        $("#log-out-link").on("click", function() {
-            $.ajax({
-                url: "/api/user/logout",
-                type: "POST",
-                cache: "false",
-                contentType: "application/json",
-                beforeSend: function() {
-                    $("#log-out-link").prop("disabled", true);
-                },
-                success: function() {
-                    window.location.replace("index.html");
-                }
-            });
-        });
-    });
-
-</script>
 
 </body>
 
