@@ -31,6 +31,9 @@ public class Picture {
     @Column(nullable = false)
     private byte[] content;
 
+    @Column(nullable = false)
+    private byte[] originalContent;
+
     @ManyToOne
     @JsonBackReference
     private AppUser owner;
@@ -40,19 +43,21 @@ public class Picture {
     @JsonBackReference
     private Album album;
 
-    public Picture(String name, String note, String location, Date timestamp, byte[] content, AppUser owner, Album album) {
+    public Picture(String name, String note, String location, Date timestamp, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
         this.note = note;
         this.location = location;
         this.timestamp = timestamp;
         this.content = content;
+        this.originalContent = originalContent;
         this.owner = owner;
         this.album = album;
     }
 
-    public Picture(String name, byte[] content, AppUser owner, Album album) {
+    public Picture(String name, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
         this.content = content;
+        this.originalContent = originalContent;
         this.owner = owner;
         this.album = album;
     }
@@ -89,6 +94,10 @@ public class Picture {
 
     public byte[] getContent() {
         return content;
+    }
+
+    public byte[] getOriginalContent() {
+        return originalContent;
     }
 
     public AppUser getOwner() {
