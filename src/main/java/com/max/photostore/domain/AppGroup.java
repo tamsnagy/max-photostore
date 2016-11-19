@@ -3,6 +3,7 @@ package com.max.photostore.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,6 +33,23 @@ public class AppGroup {
     }
 
     public AppGroup() {}
+
+
+    public void addMember(AppUser user) {
+        if(! owner.equals(user)) {
+            if(this.members == null) {
+                this.members = new ArrayList<>();
+            }
+            this.members.add(user);
+        }
+    }
+
+    public void addAlbum(Album album) {
+        if(this.albums == null) {
+            this.albums = new ArrayList<>();
+        }
+        this.albums.add(album);
+    }
 
     public long getId() {
         return id;
@@ -71,5 +89,21 @@ public class AppGroup {
 
     public void setAlbums(List<Album> albums) {
         this.albums = albums;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppGroup group = (AppGroup) o;
+
+        return id == group.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

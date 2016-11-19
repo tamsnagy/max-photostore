@@ -1,10 +1,12 @@
 package com.max.photostore.service;
 
 import com.max.photostore.domain.Album;
+import com.max.photostore.domain.AppGroup;
 import com.max.photostore.domain.AppUser;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.repository.AlbumRepository;
+import com.max.photostore.repository.GroupRepository;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.CreateAlbum;
 import com.max.photostore.response.GetAlbum;
@@ -16,17 +18,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class AlbumServiceImpl implements AlbumService {
     private final AlbumRepository albumRepository;
     private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
 
     @Autowired
-    public AlbumServiceImpl(AlbumRepository albumRepository, UserRepository userRepository) {
+    public AlbumServiceImpl(AlbumRepository albumRepository, UserRepository userRepository, GroupRepository groupRepository) {
         this.albumRepository = albumRepository;
         this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
     }
 
     @Override
@@ -62,7 +67,9 @@ public class AlbumServiceImpl implements AlbumService {
         if(owner == null) {
             throw new ResourceMissingException("User not found with username " + user);
         }
-        List<Album> albumList = albumRepository.findByOwner(owner);
-        return albumList.stream().map(GetAlbum::new).collect(Collectors.toList());
+        Set<Album> albumSet = albumRepository.findByOwnerAndParentIsNull(owner);
+        List<AppGroup> groupList = groupRepository.findByMembersInOrOwner(Collections.singletonList(owner), owner);
+        groupList.forEach(group -> albumSet.addAll(albumRepository.findByGroupsIn(Collections.singletonList(group))));
+        return albumSet.stream().map(GetAlbum::new).collect(Collectors.toList());
     }
 }
