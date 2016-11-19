@@ -6,6 +6,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="js/scripts.js"></script>
     <script src="js/home.js"></script>
+    <script>
+        var currentGroup;
+    </script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 
@@ -25,30 +28,85 @@
         });
     }
 
+    function deleteGroup(id) {
+        $.ajax({
+            url: "/api/group/" + id,
+            type: "DELETE",
+            cache: "false",
+            contentType: "application/json",
+            beforeSend: function() {
+                $("#delete-group-button").prop("disabled", true);
+            },
+            success: function() {
+                listGroups();
+            },
+            error: function(xhr, status, error) {
+                alert(xhr.responseText);
+            },
+            complete: function() {
+                $("#delete-group-button").prop("disabled", false);
+            }
+        });
+    }
+
     $(document).ready(function() {
         refreshGroups();
 
-        $("#groups-list").on("click", ".groups-list-item", function() {
-            alert("valami");
-            /*$.ajax({
-                url: "/api/group/",
-                type: "GET",
-                data: JSON.stringify($("#create-group-form").serializeObject()),
+        $("#group-details-div").on("click", "#remove-member-button", function() {
+            var selectedOption = $("#group-details-members option:selected");
+            var memberId = selectedOption.val();
+            if (memberId === undefined)
+                return;
+            $.ajax({
+                url: "/api/group/"+currentGroup+"/removemember",
+                type: "POST",
+                data: JSON.stringify({"id":+memberId}),
                 cache: "false",
                 contentType: "application/json",
-                beforeSend: function() {
-                    $("#create-group-button").prop("disabled", true);
-                },
-                success: function() {
-                    refreshGroups();
+                success: function(xhr, status, error) {
+                    selectedOption.remove();
                 },
                 error: function(xhr, status, error) {
                     alert(xhr.responseText);
-                },
-                complete: function() {
-                    $("#create-group-button").prop("disabled", false);
                 }
-            });*/
+            });
+        });
+
+        $("#groups-list").on("click", ".groups-list-item", function() {
+            $.ajax({
+                url: "/api/group/"+parseInt(this.id.substring(5)),
+                type: "GET",
+                cache: "false",
+                contentType: "application/json",
+                success: function(xhr, status, error) {
+                    var groupDetailsDiv = $("#group-details-div");
+                    var group = xhr.data;
+
+                    var str = "";
+                    str += "<div class='group-details-header'>"+group.name+"</div>";
+                    str += "Owner: " + group.owner.username + " ("+group.owner.email+")<br/>";
+                    str += "Members<br />";
+                    str += "<select id='group-details-members' size=10 style='width: 100%;'>";
+                    $.each(group.members, function(i, item) {
+                        str += "<option value='"+item.id+"'>"+item.username+"</option>";
+                    });
+                    str += "</select><br />";
+                    str += "<button id='remove-member-button'>Remove member</button><br />";
+                    str += "Albums<br />";
+                    str += "<select id='group-details-albums' size=10 style='width: 100%;'>";
+                    $.each(group.albums, function(i, item) {
+                        str += "<option value='"+item.id+"'>"+item.name+"</option>";
+                    });
+                    str += "</select><br />";
+                    str += "<button id='delete-group-button' onclick='deleteGroup("+group.id+")'>Delete group</button>";
+                    groupDetailsDiv.html(str);
+
+                    currentGroup = group.id;
+
+                    $("#groups-div").hide();
+                    groupDetailsDiv.show();
+                }
+            });
         });
 
         $("#create-group-button").on("click", function() {
@@ -72,31 +130,6 @@
                 }
             });
         });
-
-        /*$("#delete-group-button").on("click", function() {
-            var groupId = $("#my-groups-list option:selected").val();
-            if (groupId === undefined)
-                return;
-            $.ajax({
-                url: "/api/group/" + groupId,
-                type: "DELETE",
-                cache: "false",
-                contentType: "application/json",
-                beforeSend: function() {
-                    $("#delete-group-button").prop("disabled", true);
-                },
-                success: function() {
-                    alert("Group successfully deleted");
-                    refreshGroups();
-                },
-                error: function(xhr, status, error) {
-                    alert(xhr.responseText);
-                },
-                complete: function() {
-                    $("#delete-group-button").prop("disabled", false);
-                }
-            });
-        });*/
 
         $("#log-out-link").on("click", function() {
             $.ajax({
@@ -171,6 +204,8 @@
                 </form>
             </div>
         </div>
+
+        <div id="group-details-div"></div>
     </div>
 </div>
 

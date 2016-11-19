@@ -104,6 +104,8 @@ public class GroupServiceImpl implements GroupService {
             group.setMembers(new ArrayList<>());
         if (!group.getMembers().contains(member))
             throw new GroupException("User is not member of this group");
+        if (group.getOwner().equals(member))
+            throw new GroupException("Owner of the group can not be removed from the group");
         group.getMembers().remove(member);
     }
 

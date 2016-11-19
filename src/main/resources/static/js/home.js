@@ -3,6 +3,7 @@ var globalState = {};
 function listGroups() {
     refreshGroups();
     $("#groups-div").show();
+    $("#group-details-div").hide();
     $("#album-view").hide();
     $("#albums-div").hide();
     $("#upload-file-form").hide();
@@ -31,6 +32,7 @@ function listAlbums() {
         albumsDiv.show();
         clearAlbumViewDiv();
         hideGroupsList();
+        hideGroupDetails();
         $("#upload-file-form").hide();
     });
 }
@@ -100,6 +102,7 @@ function openAlbum(id) {
             $("#albums-table").html("");
             clearAlbumViewDiv();
             hideGroupsList();
+        hideGroupDetails();
             $("#album-view").show();
 
             if (album.parent == null) {
@@ -150,4 +153,8 @@ function clearAlbumViewDiv(){
 
 function hideGroupsList() {
     $("#groups-div").hide();
+}
+
+function hideGroupDetails() {
+    $("#group-details-div").hide();
 }

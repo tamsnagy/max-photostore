@@ -67,7 +67,7 @@ public class GroupController {
         try {
             groupService.addMember(groupId, request.id, principal);
         } catch (GroupException e) {
-            e.buildResponse();
+            return e.buildResponse();
         }
         return ResponseEntity.ok().build();
     }
@@ -78,7 +78,7 @@ public class GroupController {
         try {
             groupService.removeMember(groupId, request.id, principal);
         } catch (GroupException e) {
-            e.buildResponse();
+            return e.buildResponse();
         }
         return ResponseEntity.ok().build();
     }

@@ -99,4 +99,23 @@ public class AppUser {
     public void setOwnedGroups(List<AppGroup> ownedGroups) {
         this.ownedGroups = ownedGroups;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppUser appUser = (AppUser) o;
+
+        if (!id.equals(appUser.id)) return false;
+        return username.equals(appUser.username);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + username.hashCode();
+        return result;
+    }
 }
