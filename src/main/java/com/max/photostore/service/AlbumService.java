@@ -11,5 +11,6 @@ public interface AlbumService {
     void createAlbum(CreateAlbum request, String owner) throws PhotostoreException;
     GetAlbum getAlbum(Long albumId) throws PhotostoreException;
     List<GetAlbum> listAlbums(String user) throws ResourceMissingException;
+    List<GetAlbum> listOwnedParentlessAlbums(String user) throws ResourceMissingException;
 
 }

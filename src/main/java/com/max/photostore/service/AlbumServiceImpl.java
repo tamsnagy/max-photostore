@@ -72,4 +72,13 @@ public class AlbumServiceImpl implements AlbumService {
         groupList.forEach(group -> albumSet.addAll(albumRepository.findByGroupsIn(Collections.singletonList(group))));
         return albumSet.stream().map(GetAlbum::new).collect(Collectors.toList());
     }
+
+    @Override
+    public List<GetAlbum> listOwnedParentlessAlbums(String user) throws ResourceMissingException {
+        AppUser owner = userRepository.findOneByUsername(user);
+        if(owner == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        return albumRepository.findByOwnerAndParentIsNull(owner).stream().map(GetAlbum::new).collect(Collectors.toList());
+    }
 }

@@ -84,7 +84,7 @@ public class PhotostoreApplicationTests {
 
     @Before
     public void before(){
-        // order is important !! 
+        // order is important !!
         groupRepository.deleteAll();
         albumRepository.deleteAll();
         pictureRepository.deleteAll();

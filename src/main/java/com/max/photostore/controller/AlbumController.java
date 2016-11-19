@@ -33,6 +33,15 @@ class AlbumController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/ownedroots")
+    ResponseEntity<?> listOwnedAlbums(Principal principal) {
+        try {
+            return ResponseEntity.ok(albumService.listOwnedParentlessAlbums(principal.getName()));
+        } catch (ResourceMissingException e) {
+            return e.buildResponse();
+        }
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     ResponseEntity<?> createAlbum(@RequestBody CreateAlbum request, Principal principal) {
         //TODO can I create album here??
