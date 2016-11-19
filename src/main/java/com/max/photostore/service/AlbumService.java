@@ -8,7 +8,7 @@ import com.max.photostore.response.GetAlbum;
 import java.util.List;
 
 public interface AlbumService {
-    void createAlbum(Long groupId, CreateAlbum request, String owner) throws PhotostoreException;
+    void createAlbum(CreateAlbum request, String owner) throws PhotostoreException;
     GetAlbum getAlbum(Long albumId) throws PhotostoreException;
     List<GetAlbum> listAlbums(String user) throws ResourceMissingException;
 
