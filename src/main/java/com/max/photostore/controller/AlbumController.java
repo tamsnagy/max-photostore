@@ -1,7 +1,7 @@
 package com.max.photostore.controller;
 
-import com.max.photostore.domain.Album;
 import com.max.photostore.exception.PhotostoreException;
+import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.CreateAlbum;
 import com.max.photostore.service.AlbumService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.security.Principal;
-import java.util.Collection;
 
 @Controller
 @RequestMapping("/api/album")
@@ -26,9 +25,12 @@ class AlbumController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    Collection<Album> listAlbums(Principal principal) {
-        // get groups, where a user belongs to, and query all albums for it.
-        return null;
+    ResponseEntity<?> listAlbums(Principal principal) {
+        try {
+            return ResponseEntity.ok(albumService.listAlbums(principal.getName()));
+        } catch (ResourceMissingException e) {
+            return e.buildResponse();
+        }
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{groupId}")
