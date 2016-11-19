@@ -6,7 +6,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="js/scripts.js"></script>
     <script src="js/home.js"></script>
+<<<<<<< Updated upstream
+    <link rel="stylesheet" href="css/style.css">
+=======
+
     <link rel="stylesheet" type="text/css" href="css/style.css">
+>>>>>>> Stashed changes
 </head>
 
 <script>
@@ -114,6 +119,10 @@
         });
     });
 
+    $(document).ready(function () {
+
+    });
+
 
     $(document).ready(listAlbums());
 </script>
@@ -134,10 +143,7 @@
             <label>Album name</label>
             <input type="text" name="name">
             <input type="button" value="Create Album" onclick="createAlbum()">
-        </form><br />
-
-        <button onclick="listAlbums()" id="list-albums-button">Albums</button><br />
-        <button onclick="listGroups()" id="list-groups-button">Groups</button>
+        </form>
     </div>
 
     <div class="right">
@@ -151,6 +157,7 @@
         <br />
         <hr />
 
+<<<<<<< Updated upstream
         <div id="albums-div">
             <table id="albums-table"></table>
         </div>
@@ -160,18 +167,21 @@
             <table id="albums-in-album"></table>
             <table id="pictures-in-album"></table>
         </div>
-
-        <div id="groups-div">
-            <div class="groups-header">My groups</div>
-            <div id="groups-list"></div>
-            <div class="groups-footer">
-                <form id="create-group-form">
-                    Name <input name="name" type="text"><input id="create-group-button" type="button" value="Create group" />
-                </form>
-            </div>
-        </div>
     </div>
 </div>
+=======
+<div id="groups-div">
+    <div class="groups-header">My groups</div>
+    <div id="groups-list"></div>
+    <div class="groups-footer">
+        <form id="create-group-form">
+            Name <input name="name" type="text"><input id="create-group-button" type="button" value="Create group" />
+        </form>
+    </div>
+</div>
+
+<a href="picture.html">Show last uploaded picture</a>
+>>>>>>> Stashed changes
 
 </body>
 

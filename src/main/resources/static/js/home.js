@@ -1,5 +1,13 @@
 var globalState = {};
 
+function listGroups() {
+    refreshGroups();
+    $("#groups-div").show();
+    $("#album-view").hide();
+    $("#albums-div").hide();
+    $("#upload-file-form").hide();
+}
+
 function listAlbums() {
     var jqxhr = $.get({
         url: "/api/album/",
@@ -8,6 +16,7 @@ function listAlbums() {
     });
 
     jqxhr.done(function (albumList) {
+        $("#albums-table").html("");
         var albumsDiv = $("#albums-div");
         if(albumList.length == 0) {
             albumsDiv
@@ -21,6 +30,7 @@ function listAlbums() {
         displayIdOfCurrentAlbum();
         albumsDiv.show();
         clearAlbumViewDiv();
+        hideGroupsList();
         $("#upload-file-form").hide();
     });
 }
@@ -75,6 +85,7 @@ function openAlbum(id) {
         // hide albums-div
         $("#albums-table").html("");
         clearAlbumViewDiv();
+        hideGroupsList();
         $("#album-view").show();
 
         if(album.parent == null) {
@@ -119,4 +130,8 @@ function clearAlbumViewDiv(){
     $("#go-back-to-album").html("");
     $("#albums-in-album").html("");
     $("#pictures-in-album").html("");
+}
+
+function hideGroupsList() {
+    $("#groups-div").hide();
 }

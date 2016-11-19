@@ -1,7 +1,10 @@
 package com.max.photostore.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class AppUser {
@@ -17,16 +20,20 @@ public class AppUser {
     private String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     private byte[] password;
 
     @Column(nullable = false)
+    @JsonIgnore
     private byte[] salt;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
-    private Set<AppGroup> ownedGroups;
+    @JsonBackReference
+    private List<AppGroup> ownedGroups;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "members")
-    private Set<AppGroup> groups;
+    @JsonBackReference
+    private List<AppGroup> groups;
 
     public AppUser(String username, String email, byte[] password, byte[] salt) {
         this.username = username;
@@ -77,19 +84,19 @@ public class AppUser {
         this.salt = salt;
     }
 
-    public Set<AppGroup> getGroups() {
+    public List<AppGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(Set<AppGroup> groups) {
+    public void setGroups(List<AppGroup> groups) {
         this.groups = groups;
     }
 
-    public Set<AppGroup> getOwnedGroups() {
+    public List<AppGroup> getOwnedGroups() {
         return ownedGroups;
     }
 
-    public void setOwnedGroups(Set<AppGroup> ownedGroups) {
+    public void setOwnedGroups(List<AppGroup> ownedGroups) {
         this.ownedGroups = ownedGroups;
     }
 }

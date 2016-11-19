@@ -1,17 +1,19 @@
 package com.max.photostore.response;
 
-import java.util.Set;
+import com.max.photostore.domain.AppGroup;
+
+import java.util.List;
 
 public class GetGroups {
-    private Set<GroupMetaData> data;
+    private List<AppGroup> data;
 
-    public GetGroups(Set<GroupMetaData> data) {
+    public GetGroups(List<AppGroup> data) {
         this.data = data;
     }
 
     public GetGroups() {}
 
-    public Set<GroupMetaData> getData() {
+    public List<AppGroup> getData() {
         return data;
     }
 }

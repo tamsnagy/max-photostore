@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class Album {
@@ -37,7 +36,7 @@ public class Album {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "albums")
     @JsonManagedReference
-    private Set<AppGroup> groups;
+    private List<AppGroup> groups;
 
     public Album(String name, Date timestamp, AppUser owner, Album parent, List<Picture> pictureList, List<Album> albumList) {
         this.name = name;
@@ -93,7 +92,7 @@ public class Album {
         return parent;
     }
 
-    public Set<AppGroup> getGroups() {
+    public List<AppGroup> getGroups() {
         return groups;
     }
 }

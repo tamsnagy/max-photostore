@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,7 @@ public class GroupServiceImpl implements GroupService {
 
         AppGroup group = new AppGroup(name, owner);
         if (group.getMembers() == null)
-            group.setMembers(new HashSet<>());
+            group.setMembers(new ArrayList<>());
         group.getMembers().add(owner);
         groupRepository.save(group);
     }
@@ -53,17 +55,14 @@ public class GroupServiceImpl implements GroupService {
         AppUser user = userRepository.findOneByUsername(principal.getName());
         if (!user.getGroups().contains(group))
             throw new GroupException("User is not member of this group");
-        return new GetGroup(new GroupMetaData(groupId, group.getName(), group.getOwner().getId()));
+        return new GetGroup(group);
     }
 
     @Override
     public GetGroups getGroups(Principal principal) {
         AppUser user = userRepository.findOneByUsername(principal.getName());
-        Set<AppGroup> groups = user.getGroups();
-        Set<GroupMetaData> res = groups != null
-                ? groups.stream().map(g -> new GroupMetaData(g.getId(), g.getName(), g.getOwner().getId())).collect(Collectors.toSet())
-                : new HashSet<>();
-        return new GetGroups(res);
+        List<AppGroup> groups = user.getGroups();
+        return new GetGroups(groups != null ? groups : new ArrayList<>());
     }
 
     @Override
@@ -85,7 +84,7 @@ public class GroupServiceImpl implements GroupService {
         if (newMember == null)
             throw new GroupException("User does not exist");
         if (group.getMembers() == null)
-            group.setMembers(new HashSet<>());
+            group.setMembers(new ArrayList<>());
         if (group.getMembers().contains(newMember))
             throw new GroupException("User already member of this group");
         group.getMembers().add(newMember);
@@ -102,7 +101,7 @@ public class GroupServiceImpl implements GroupService {
         if (member == null)
             throw new GroupException("User does not exist");
         if (group.getMembers() == null)
-            group.setMembers(new HashSet<>());
+            group.setMembers(new ArrayList<>());
         if (!group.getMembers().contains(member))
             throw new GroupException("User is not member of this group");
         group.getMembers().remove(member);

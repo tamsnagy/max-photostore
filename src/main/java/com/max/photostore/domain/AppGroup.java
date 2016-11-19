@@ -1,7 +1,9 @@
 package com.max.photostore.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class AppGroup {
@@ -14,13 +16,15 @@ public class AppGroup {
     private String name;
 
     @ManyToOne
+    @JsonManagedReference
     private AppUser owner;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<AppUser> members;
+    @JsonManagedReference
+    private List<AppUser> members;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Album> albums;
+    private List<Album> albums;
 
     public AppGroup(String name, AppUser owner) {
         this.name = name;
@@ -53,19 +57,19 @@ public class AppGroup {
         this.owner = owner;
     }
 
-    public Set<AppUser> getMembers() {
+    public List<AppUser> getMembers() {
         return members;
     }
 
-    public void setMembers(Set<AppUser> members) {
+    public void setMembers(List<AppUser> members) {
         this.members = members;
     }
 
-    public Set<Album> getAlbums() {
+    public List<Album> getAlbums() {
         return albums;
     }
 
-    public void setAlbums(Set<Album> albums) {
+    public void setAlbums(List<Album> albums) {
         this.albums = albums;
     }
 }
