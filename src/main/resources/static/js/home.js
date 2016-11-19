@@ -37,73 +37,89 @@ function listAlbums() {
 
 function uploadPicture(){
     displayIdOfCurrentAlbum();
-    $.ajax({
-        url: "/api/picture/" + globalState.currentAlbum,
-        type: "POST",
-        data: new FormData($("#upload-file-form")[0]),
-        enctype: 'multipart/form-data',
-        processData: false,
-        contentType: false,
-        cache: false,
-        success: function () {
-            // Handle upload success
-            $("#upload-file-message").text("File succesfully uploaded");
-        },
-        error: function () {
-            // Handle upload error
-            $("#upload-file-message").text(
-                "File not uploaded (perhaps it's too much big)");
-        }
-    });
+    var selectedFile = $("#upload-file-form")[0];
+    if($("#upload-file-input")[0].files.length == 0) {
+        alert("Please select a file to upload.");
+    } else {
+        $.ajax({
+            url: "/api/picture/" + globalState.currentAlbum,
+            type: "POST",
+            data: new FormData(selectedFile),
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function () {
+                // Handle upload success
+                $("#upload-file-message").text("File succesfully uploaded");
+            },
+            error: function () {
+                // Handle upload error
+                $("#upload-file-message").text(
+                    "File not uploaded (perhaps it's too much big)");
+            }
+        });
+    }
 }
 
 function createAlbum() {
-    displayIdOfCurrentAlbum();
     var requestBody = $("#create-album").serializeObject();
-    requestBody.parentAlbum = globalState.currentAlbum;
-    $.ajax({
-        url: "/api/album/",
-        type: "POST",
-        data: JSON.stringify(requestBody),
-        cache: "false",
-        contentType: "application/json",
-        error: function(xhr, status, error) {
-            $("#sign-up-message").text(xhr.responseText);
-        }
-    });
-    listAlbums();
+    var albumName = $("#create-album-name").val();
+    if(albumName == "" || albumName == null || albumName === undefined) {
+        alert("Please give a name to your album");
+    } else {
+        requestBody.parentAlbum = globalState.currentAlbum;
+        $.ajax({
+            url: "/api/album/",
+            type: "POST",
+            data: JSON.stringify(requestBody),
+            cache: "false",
+            contentType: "application/json",
+            error: function (xhr, status, error) {
+                $("#sign-up-message").text(xhr.responseText);
+            },
+            complete: function () {
+                openAlbum(globalState.currentAlbum);
+            }
+        });
+    }
 }
 
 function openAlbum(id) {
-    var jqxhr = $.get({
-        url: "/api/album/" + id,
-        cache: "false",
-        contentType: "application/json"
-    });
+    if (id == null) {
+        listAlbums();
+    } else {
+        var jqxhr = $.get({
+            url: "/api/album/" + id,
+            cache: "false",
+            contentType: "application/json"
+        });
 
-    jqxhr.done(function (album) {
-        // hide albums-div
-        $("#albums-table").html("");
-        clearAlbumViewDiv();
-        hideGroupsList();
-        $("#album-view").show();
+        jqxhr.done(function (album) {
+            // hide albums-div
+            $("#albums-table").html("");
+            clearAlbumViewDiv();
+            hideGroupsList();
+            $("#album-view").show();
 
-        if(album.parent == null) {
-            $("#go-back-to-album").append("<button class='myButton' onclick='listAlbums()'>Go up a level</button>");
-        } else {
-            $("#go-back-to-album").append("<button class='myButton' onclick='openAlbum(" + album.parent + ")'> Go up a level</button>");
-        }
-        $("#albums-in-album").append(
-            $.map(album.albumList, displayAlbum).join()
-        );
-        $("#pictures-in-album").append(
-            $.map(album.pictureList, displaySmallPicture).join()
-        );
+            if (album.parent == null) {
+                $("#go-back-to-album").append("<button class='myButton' onclick='listAlbums()'>Go up a level</button>");
+            } else {
+                $("#go-back-to-album").append("<button class='myButton' onclick='openAlbum(" + album.parent + ")'> Go up a level</button>");
+            }
+            $("#albums-in-album").append(
+                $.map(album.albumList, displayAlbum).join()
+            );
+            $("#pictures-in-album").append(
+                $.map(album.pictureList, displaySmallPicture).join()
+            );
 
-        globalState.currentAlbum = album.id;
-        displayIdOfCurrentAlbum();
-    });
-    $("#upload-file-form").show();
+            globalState.currentAlbum = album.id;
+            displayIdOfCurrentAlbum();
+
+            $("#upload-file-form").show();
+        });
+    }
 }
 
 function openPicture(id) {

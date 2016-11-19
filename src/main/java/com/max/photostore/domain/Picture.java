@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.Date;
 
@@ -15,7 +16,7 @@ import java.util.Date;
 public class Picture {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "picture_id", nullable = false)
     private Long id;
 
     @Column(nullable = false)
@@ -27,6 +28,7 @@ public class Picture {
 
     private Date timestamp;
 
+    @Column(nullable = false)
     private byte[] content;
 
     @ManyToOne
@@ -34,6 +36,7 @@ public class Picture {
     private AppUser owner;
 
     @ManyToOne
+    @JoinColumn(name = "album_id", nullable = false)
     @JsonBackReference
     private Album album;
 

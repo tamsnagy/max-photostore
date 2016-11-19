@@ -132,7 +132,7 @@
     <div class="left">
         <form id="create-album">
             <label>Album name</label>
-            <input type="text" name="name">
+            <input id="create-album-name" type="text" name="name">
             <input type="button" value="Create Album" onclick="createAlbum()">
         </form><br />
 
@@ -144,7 +144,8 @@
         <!-- Upload file form -->
         <form id="upload-file-form">
             <label for="upload-file-input">Upload your file:</label>
-            <input id="upload-file-input" type="file" name="uploadfile" accept="*" onsubmit="uploadPicture()"/>
+            <input id="upload-file-input" type="file" name="uploadfile" accept="*"/>
+            <input type="button" value="Upload" onclick="uploadPicture()">
             <br />
             <span id="upload-file-message"></span>
         </form>

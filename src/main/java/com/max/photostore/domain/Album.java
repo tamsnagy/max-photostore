@@ -12,7 +12,7 @@ import java.util.List;
 public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @Column(name = "album_id", nullable = false)
     private Long id;
 
     private String name;
@@ -26,7 +26,7 @@ public class Album {
     @JsonBackReference
     private Album parent;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "album")
     @JsonManagedReference
     private List<Picture> pictureList;
 
