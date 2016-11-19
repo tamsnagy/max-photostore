@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean login(String username, String password) throws InternalServerErrorException {
+    public boolean login(String username, String password, HttpServletResponse response) throws InternalServerErrorException {
         if (username == null || password == null)
             return false;
 
@@ -88,6 +89,12 @@ public class UserServiceImpl implements UserService {
             UserDetails userDetails = new User(username, password, authorities);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(token);
+
+            Cookie cookie = new Cookie("loggedin", "true");
+            cookie.setPath("/");
+            cookie.setHttpOnly(false);
+            response.addCookie(cookie);
+
             return true;
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new InternalServerErrorException(e);
@@ -95,10 +102,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout(HttpSession session) {
+    public void logout(HttpSession session, HttpServletResponse response) {
         SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
         if (session != null)
             session.invalidate();
+        Cookie cookie = new Cookie("loggedin", null);
+        cookie.setHttpOnly(false);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 
     private boolean validateUsername(final String username) {
