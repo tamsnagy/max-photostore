@@ -1,5 +1,6 @@
 package com.max.photostore.controller;
 
+import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.UpdatePicture;
 import com.max.photostore.service.PictureService;
@@ -33,6 +34,8 @@ class PictureController {
             return ResponseEntity.ok(pictureService.uploadPicture(uploadfile.getBytes(), uploadfile.getOriginalFilename(), principal.getName(), albumId));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
+        } catch (PhotostoreException e) {
+            return e.buildResponse();
         }
     }
 
@@ -48,6 +51,16 @@ class PictureController {
         try {
             return ResponseEntity.ok(pictureService.getPicture(pictureId));
         } catch (ResourceMissingException e) {
+            return e.buildResponse();
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{pictureId}")
+    ResponseEntity<?> deletePicture(@PathVariable Long pictureId, Principal principal) {
+        try {
+            pictureService.deletePicture(pictureId, principal.getName());
+            return ResponseEntity.ok().build();
+        } catch (PhotostoreException e) {
             return e.buildResponse();
         }
     }
