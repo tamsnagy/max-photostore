@@ -118,7 +118,7 @@ public class PhotostoreApplicationTests {
         for(Album album: albumRepository.findAll()) {
             albumId = album.getId();
         }
-        final byte[] content = "pictureContent".getBytes();
+        final byte[] content = "R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=".getBytes();
         final String name = "testPictureName";
         Long pictureId = pictureService.uploadPicture(content, name, USERNAME, albumId);
 

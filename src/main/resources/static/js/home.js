@@ -53,12 +53,11 @@ function uploadPicture(){
             cache: false,
             success: function () {
                 // Handle upload success
-                $("#upload-file-message").text("File succesfully uploaded");
+                openAlbum(globalState.currentAlbum);
             },
             error: function () {
                 // Handle upload error
-                $("#upload-file-message").text(
-                    "File not uploaded (perhaps it's too much big)");
+                alert("File not uploaded (perhaps it's too much big)\nFile shouldn't be larger than 3 MB");
             }
         });
     }
