@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -41,9 +42,9 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         try {
-            return userService.login(request.username, request.password)
+            return userService.login(request.username, request.password, response)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (InternalServerErrorException e) {
@@ -53,8 +54,8 @@ public class UserController {
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> logout(HttpSession session) {
-        userService.logout(session);
+    public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
+        userService.logout(session, response);
         return ResponseEntity.ok().build();
     }
 }

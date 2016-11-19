@@ -10,7 +10,7 @@ import java.security.Principal;
 public interface UserService {
     void signup(String username, String email, String password) throws SignupException, InternalServerErrorException;
 
-    boolean login(String username, String password) throws InternalServerErrorException;
+    boolean login(String username, String password, HttpServletResponse response) throws InternalServerErrorException;
 
-    void logout(HttpSession session);
+    void logout(HttpSession session, HttpServletResponse response);
 }
