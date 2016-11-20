@@ -41,6 +41,7 @@ public class PictureServiceImpl implements PictureService {
     }
 
     @Override
+    @Transactional
     public Long uploadPicture(byte[] bytes, String originalFilename, String owner, Long albumId) throws PhotostoreException{
         AppUser user = userRepository.findOneByUsername(owner);
         if(user == null){
@@ -53,6 +54,7 @@ public class PictureServiceImpl implements PictureService {
         Picture picture = new Picture(originalFilename, scaleService.scale(bytes), bytes, user, parentAlbum);
         picture = pictureRepository.save(picture);
         parentAlbum.addPicture(picture);
+        albumRepository.save(parentAlbum);
         return picture.getId();
     }
 
