@@ -25,8 +25,9 @@ public class ScaleServiceImpl implements ScaleService{
 
     @Override
     public byte[] scale(byte[] fileData) throws PhotostoreException {
-        ByteArrayInputStream in = new ByteArrayInputStream(fileData);
-        try {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(fileData);
+             ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
             BufferedImage img = ImageIO.read(in);
             final float ratio = img.getHeight() * 1.0f / img.getWidth();
             int small_width = width;
@@ -39,9 +40,6 @@ public class ScaleServiceImpl implements ScaleService{
             Image scaledImage = img.getScaledInstance(small_width, small_height, Image.SCALE_SMOOTH);
             BufferedImage imageBuff = new BufferedImage(small_width, small_height, BufferedImage.TYPE_INT_RGB);
             imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
-
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
             ImageIO.write(imageBuff, "png", buffer);
 
             return buffer.toByteArray();
