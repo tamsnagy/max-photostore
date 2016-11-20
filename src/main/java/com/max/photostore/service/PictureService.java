@@ -8,7 +8,7 @@ import com.max.photostore.request.UpdatePicture;
 public interface PictureService {
     Long uploadPicture(byte[] bytes, String originalFilename, String owner, Long albumId) throws PhotostoreException;
     void updatePicture(Long id, UpdatePicture update);
-    Picture getPicture(Long pictureId) throws ResourceMissingException;
+    Picture getPicture(Long pictureId, String username) throws ResourceMissingException;
     void deletePicture(Long pictureId, String username) throws PhotostoreException;
     void uploadZip(byte[] bytes, String fileName, String username, Long albumId) throws PhotostoreException;
 }

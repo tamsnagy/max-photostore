@@ -11,16 +11,10 @@ import com.max.photostore.repository.AlbumRepository;
 import com.max.photostore.repository.PictureRepository;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.UpdatePicture;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,7 +65,7 @@ public class PictureServiceImpl implements PictureService {
     }
 
     @Override
-    public Picture getPicture(Long pictureId) throws ResourceMissingException {
+    public Picture getPicture(Long pictureId, String username) throws ResourceMissingException {
         //TODO secure
         Picture picture = pictureRepository.findOne(pictureId);
         if(picture == null) {
@@ -114,16 +108,13 @@ public class PictureServiceImpl implements PictureService {
         try(ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(bytes))){
             ZipEntry entry = null;
             while ((entry = zipStream.getNextEntry()) != null) {
-                if(entry.isDirectory()) {
-                    // TODO Do nothing, or upload as album ?
-                } else {
+                if( ! entry.isDirectory()) {
                     final String entryFullName = entry.getName();
                     if(! entryFullName.startsWith("__MACOS")) {
                         final String entryName = entryFullName.contains("/") ?
                                 entryFullName.substring(entryFullName.lastIndexOf('/')) :
                                 entryFullName;
-                        final String[] parts = entryName.split("\\.");
-                        final String extension = parts[parts.length - 1];
+                        final String extension = Picture.extension(entryName);
                         if (Arrays.asList("jpeg", "jpg", "png").contains(extension)) {
                             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
                                 copyStream(zipStream, byteArrayOutputStream);

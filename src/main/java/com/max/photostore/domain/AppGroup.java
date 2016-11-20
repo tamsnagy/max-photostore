@@ -20,11 +20,11 @@ public class AppGroup {
     @JsonManagedReference
     private AppUser owner;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<AppUser> members;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Album> albums;
 
     public AppGroup(String name, AppUser owner) {

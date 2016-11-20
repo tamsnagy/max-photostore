@@ -27,11 +27,11 @@ public class AppUser {
     @JsonIgnore
     private byte[] salt;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     @JsonBackReference
     private List<AppGroup> ownedGroups;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "members")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "members")
     @JsonBackReference
     private List<AppGroup> groups;
 

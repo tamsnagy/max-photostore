@@ -16,6 +16,7 @@ public class GetPicture {
     public Long albumId;
 
     public GetPicture(Picture picture) {
+        this.id = picture.getId();
         this.name = picture.getName();
         this.note = picture.getNote();
         this.location = picture.getLocation();

@@ -1,10 +1,15 @@
 package com.max.photostore.controller;
 
+import com.max.photostore.domain.Picture;
+import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.UpdatePicture;
 import com.max.photostore.service.PictureService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.activation.MimeType;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Principal;
 
@@ -33,8 +39,7 @@ class PictureController {
         //TODO validate upload
         try {
             final String fileName = uploadfile.getOriginalFilename();
-            final String[] parts = fileName.split("\\.");
-            final String extension = parts[parts.length - 1].toLowerCase();
+            final String extension = Picture.extension(fileName);
             if("zip".equals(extension)) {
                 pictureService.uploadZip(uploadfile.getBytes(), fileName, principal.getName(), albumId);
                 return ResponseEntity.ok().build();
@@ -58,7 +63,7 @@ class PictureController {
     @RequestMapping(method = RequestMethod.GET, value = "/{pictureId}")
     ResponseEntity<?> getPicture(@PathVariable Long pictureId, Principal principal) {
         try {
-            return ResponseEntity.ok(pictureService.getPicture(pictureId));
+            return ResponseEntity.ok(pictureService.getPicture(pictureId, principal.getName()));
         } catch (ResourceMissingException e) {
             return e.buildResponse();
         }
@@ -72,5 +77,19 @@ class PictureController {
         } catch (PhotostoreException e) {
             return e.buildResponse();
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{pictureId}/download")
+    void downloadPicture(HttpServletResponse response, @PathVariable Long pictureId, Principal principal) throws ResourceMissingException, IOException {
+        Picture picture = pictureService.getPicture(pictureId, principal.getName());
+        if("png".equals(picture.getContentType())){
+            response.setContentType(MediaType.IMAGE_PNG.toString());
+        } else {
+            response.setContentType(MediaType.IMAGE_JPEG.toString());
+        }
+        byte[] content = picture.getOriginalContent();
+        response.setContentLength(content.length);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + picture.getName() + "\"");
+        response.getOutputStream().write(content);
     }
 }

@@ -20,7 +20,7 @@ function listAlbums() {
         $("#albums-table").html("");
         var albumsDiv = $("#albums-div");
         if(albumList.length == 0) {
-            albumsDiv
+            $("#album-view-warning")
                 .append("<p>You don't have any albums yet. It's time to create one.</p>");
         } else {
             $("#albums-table").append(
@@ -31,6 +31,7 @@ function listAlbums() {
         displayIdOfCurrentAlbum();
         albumsDiv.show();
         clearAlbumViewDiv();
+        clearPictureView();
         hideGroupsList();
         hideGroupDetails();
         $("#upload-file-form").hide();
@@ -100,8 +101,9 @@ function openAlbum(id) {
             // hide albums-div
             $("#albums-table").html("");
             clearAlbumViewDiv();
+            clearPictureView();
             hideGroupsList();
-        hideGroupDetails();
+            hideGroupDetails();
             $("#album-view").show();
 
             if (album.parent == null) {
@@ -126,7 +128,33 @@ function openAlbum(id) {
 
 function openPicture(id) {
     displayIdOfCurrentAlbum();
-    console.log("Picture open with id " + id);
+    clearAlbumViewDiv();
+    clearPictureView();
+    hideGroupDetails();
+    hideGroupsList();
+
+    var jqxhr = $.get({
+        url: "/api/picture/" + id,
+        cache: "false",
+        contentType: "application/json"
+    });
+
+    jqxhr.done(function(picture) {
+        $("#picture-view").
+        html(
+            "<button class='myButton' onclick='openAlbum(" + globalState.currentAlbum + ")' >Go back to album</button>" +
+            "<form method='GET' action='/api/picture/" + id + "/download'><input type='submit' class='myButton' value='Download picture'></form>" +
+            "<p>Name: " + picture.name + "</p>" +
+            "<img src='data:image/jpeg;base64," + picture.originalContent + "' />"
+        );
+    });
+}
+
+function downloadPicture(id) {
+   $.get({
+        url: "/api/picture/" + id + "/download",
+        cache: "false"
+    });
 }
 
 function displayAlbum(album) {
@@ -145,9 +173,14 @@ function displayIdOfCurrentAlbum() {
 }
 
 function clearAlbumViewDiv(){
+    $("#album-view-warning").html("");
     $("#go-back-to-album").html("");
     $("#albums-in-album").html("");
     $("#pictures-in-album").html("");
+}
+
+function clearPictureView() {
+    $("#picture-view").html("");
 }
 
 function hideGroupsList() {

@@ -22,6 +22,9 @@ public class Picture {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String contentType;
+
     private String note;
 
     private String location;
@@ -45,6 +48,7 @@ public class Picture {
 
     public Picture(String name, String note, String location, Date timestamp, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
+        this.contentType = extension(name);
         this.note = note;
         this.location = location;
         this.timestamp = timestamp;
@@ -56,6 +60,7 @@ public class Picture {
 
     public Picture(String name, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
+        this.contentType = extension(name);
         this.content = content;
         this.originalContent = originalContent;
         this.owner = owner;
@@ -63,6 +68,14 @@ public class Picture {
     }
 
     public Picture() {
+    }
+
+    public static String extension(final String fileName){
+        final String[] parts = fileName.split("\\.");
+        if(parts.length == 0) {
+            return "";
+        }
+        return parts[parts.length - 1].toLowerCase();
     }
 
     public void update(UpdatePicture picture) {
@@ -82,6 +95,10 @@ public class Picture {
 
     public String getNote() {
         return note;
+    }
+
+    public String getContentType() {
+        return contentType;
     }
 
     public String getLocation() {
