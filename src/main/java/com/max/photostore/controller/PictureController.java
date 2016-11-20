@@ -1,14 +1,10 @@
 package com.max.photostore.controller;
 
 import com.max.photostore.domain.Picture;
-import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.PhotostoreException;
-import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.UpdatePicture;
 import com.max.photostore.service.PictureService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Principal;
 
@@ -56,15 +51,20 @@ class PictureController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{pictureId}")
     ResponseEntity<?> updatePicture(@RequestBody UpdatePicture updatePicture, @PathVariable Long pictureId, Principal principal) {
         //TODO validate update
-        pictureService.updatePicture(pictureId, updatePicture);
-        return ResponseEntity.ok().build();
+        try {
+            pictureService.updatePicture(pictureId, updatePicture, principal.getName());
+            return ResponseEntity.ok().build();
+        } catch (PhotostoreException e) {
+            return e.buildResponse();
+        }
+
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{pictureId}")
     ResponseEntity<?> getPicture(@PathVariable Long pictureId, Principal principal) {
         try {
             return ResponseEntity.ok(pictureService.getPicture(pictureId, principal.getName()));
-        } catch (ResourceMissingException e) {
+        } catch (PhotostoreException e) {
             return e.buildResponse();
         }
     }
@@ -80,7 +80,7 @@ class PictureController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{pictureId}/download")
-    void downloadPicture(HttpServletResponse response, @PathVariable Long pictureId, Principal principal) throws ResourceMissingException, IOException {
+    void downloadPicture(HttpServletResponse response, @PathVariable Long pictureId, Principal principal) throws PhotostoreException, IOException {
         Picture picture = pictureService.getPicture(pictureId, principal.getName());
         if("png".equals(picture.getContentType())){
             response.setContentType(MediaType.IMAGE_PNG.toString());

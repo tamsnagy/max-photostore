@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -44,13 +45,10 @@ public class PictureServiceImpl implements PictureService {
     @Transactional
     public Long uploadPicture(byte[] bytes, String originalFilename, String owner, Long albumId) throws PhotostoreException{
         AppUser user = userRepository.findOneByUsername(owner);
-        if(user == null){
-            throw new ResourceMissingException("User not found");
-        }
         Album parentAlbum = albumRepository.findOne(albumId);
-        if(parentAlbum == null) {
-            throw new ResourceMissingException("Album not found with id " + albumId);
-        }
+
+        validateAccess(user, parentAlbum);
+
         Picture picture = new Picture(originalFilename, scaleService.scale(bytes), bytes, user, parentAlbum);
         picture = pictureRepository.save(picture);
         parentAlbum.addPicture(picture);
@@ -58,18 +56,40 @@ public class PictureServiceImpl implements PictureService {
         return picture.getId();
     }
 
+    private void validateAccess(AppUser user, Album parentAlbum) throws PhotostoreException {
+        if(user == null){
+            throw new ResourceMissingException("User not found");
+        }
+        if(parentAlbum == null) {
+            throw new ResourceMissingException("Album not found");
+        }
+        if(! parentAlbum.getOwner().equals(user)) {
+            throw new AccessDeniedException("User is not the owner of this album");
+        }
+    }
+
+
     @Override
-    public void updatePicture(Long id, UpdatePicture update) {
-        //TODO secure
+    public void updatePicture(Long id, UpdatePicture update, String username) throws PhotostoreException {
         Picture picture = pictureRepository.findOne(id);
+        AppUser user = userRepository.findOneByUsername(username);
+        Album parentAlbum = albumRepository.findOneByPictureListIn(Collections.singletonList(picture));
+        validateAccess(user, parentAlbum);
+        if(picture == null) {
+            throw new ResourceMissingException("Picture with id " + id + " not found");
+        }
+
         picture.update(update);
         pictureRepository.save(picture);
     }
 
     @Override
-    public Picture getPicture(Long pictureId, String username) throws ResourceMissingException {
-        //TODO secure
+    public Picture getPicture(Long pictureId, String username) throws PhotostoreException {
         Picture picture = pictureRepository.findOne(pictureId);
+        AppUser user = userRepository.findOneByUsername(username);
+        Album parentAlbum = albumRepository.findOneByPictureListIn(Collections.singletonList(picture));
+        validateAccess(user, parentAlbum);
+
         if(picture == null) {
             throw new ResourceMissingException("Picture with id " + pictureId + " not found");
         }
