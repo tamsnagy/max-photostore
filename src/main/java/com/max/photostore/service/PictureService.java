@@ -10,4 +10,5 @@ public interface PictureService {
     void updatePicture(Long id, UpdatePicture update);
     Picture getPicture(Long pictureId) throws ResourceMissingException;
     void deletePicture(Long pictureId, String username) throws PhotostoreException;
+    void uploadZip(byte[] bytes, String fileName, String username, Long albumId) throws PhotostoreException;
 }

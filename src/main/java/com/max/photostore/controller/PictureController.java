@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.activation.MimeType;
 import java.io.IOException;
 import java.security.Principal;
 
@@ -31,7 +32,15 @@ class PictureController {
     ResponseEntity<?> uploadPicture(@PathVariable Long albumId, @RequestParam("uploadfile") MultipartFile uploadfile, Principal principal) {
         //TODO validate upload
         try {
-            return ResponseEntity.ok(pictureService.uploadPicture(uploadfile.getBytes(), uploadfile.getOriginalFilename(), principal.getName(), albumId));
+            final String fileName = uploadfile.getOriginalFilename();
+            final String[] parts = fileName.split("\\.");
+            final String extension = parts[parts.length - 1].toLowerCase();
+            if("zip".equals(extension)) {
+                pictureService.uploadZip(uploadfile.getBytes(), fileName, principal.getName(), albumId);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.ok(pictureService.uploadPicture(uploadfile.getBytes(), fileName, principal.getName(), albumId));
+            }
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         } catch (PhotostoreException e) {
