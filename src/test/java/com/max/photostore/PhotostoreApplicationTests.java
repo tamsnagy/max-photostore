@@ -148,6 +148,7 @@ public class PhotostoreApplicationTests {
 
 
     @Test
+    @Ignore
     public void testGroupRepository() throws ResourceMissingException {
         // Given
         Album album1 = new Album("a1", new Date(), user2, null, Collections.emptyList(), Collections.emptyList());
