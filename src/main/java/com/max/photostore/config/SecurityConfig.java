@@ -1,7 +1,5 @@
 package com.max.photostore.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -24,12 +22,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginPage("/login.html");
 
         http.csrf().disable();
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("1234").password("password").roles("USER");  //TODO: remove this user
     }
 }

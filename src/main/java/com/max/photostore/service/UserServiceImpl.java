@@ -2,8 +2,11 @@ package com.max.photostore.service;
 
 import com.max.photostore.domain.AppUser;
 import com.max.photostore.exception.InternalServerErrorException;
+import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.SignupException;
+import com.max.photostore.exception.UnauthorizedException;
 import com.max.photostore.repository.UserRepository;
+import com.max.photostore.response.Login;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -71,19 +74,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean login(String username, String password, HttpServletResponse response) throws InternalServerErrorException {
+    public Login login(String username, String password, HttpServletResponse response) throws PhotostoreException {
         if (username == null || password == null)
-            return false;
+            throw new UnauthorizedException();
 
         AppUser user = userRepository.findOneByUsername(username);
         if (user == null)
-            return false;
-
+            throw new UnauthorizedException();
         try {
             boolean success = checkPassword(password.toCharArray(), user.getSalt(), user.getPassword());
-            if (!success)
-                return false;
-
+            if (!success) {
+                throw new UnauthorizedException();
+            }
             Set<GrantedAuthority> authorities = new HashSet<>();
             authorities.add(new SimpleGrantedAuthority("USER")); // TODO bszalai
             UserDetails userDetails = new User(username, password, authorities);
@@ -95,7 +97,7 @@ public class UserServiceImpl implements UserService {
             cookie.setHttpOnly(false);
             response.addCookie(cookie);
 
-            return true;
+            return new Login(user.getId());
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new InternalServerErrorException(e);
         }

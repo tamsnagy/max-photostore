@@ -1,5 +1,10 @@
 var globalState = {};
 
+function jqShow(jqSelector){
+    jqSelector.removeAttr("hidden");
+    jqSelector.show();
+}
+
 function listGroups() {
     refreshGroups();
     $("#groups-div").show();
@@ -18,27 +23,26 @@ function listAlbums() {
 
     jqxhr.done(function (albumList) {
         $("#albums-table").html("");
+        globalState.currentAlbum = null;
+        clearAlbumViewDiv();
+        clearPictureView();
+        hideGroupsList();
+        hideGroupDetails();
+        $("#upload-file-form").hide();
         var albumsDiv = $("#albums-div");
         if(albumList.length == 0) {
-            albumsDiv
+            $("#album-view-warning")
                 .append("<p>You don't have any albums yet. It's time to create one.</p>");
         } else {
             $("#albums-table").append(
                 $.map(albumList, displayAlbum).join()
             );
         }
-        globalState.currentAlbum = null;
-        displayIdOfCurrentAlbum();
-        albumsDiv.show();
-        clearAlbumViewDiv();
-        hideGroupsList();
-        hideGroupDetails();
-        $("#upload-file-form").hide();
+        jqShow(albumsDiv);
     });
 }
 
 function uploadPicture(){
-    displayIdOfCurrentAlbum();
     var selectedFile = $("#upload-file-form")[0];
     if($("#upload-file-input")[0].files.length == 0) {
         alert("Please select a file to upload.");
@@ -53,12 +57,11 @@ function uploadPicture(){
             cache: false,
             success: function () {
                 // Handle upload success
-                $("#upload-file-message").text("File succesfully uploaded");
+                openAlbum(globalState.currentAlbum);
             },
             error: function () {
                 // Handle upload error
-                $("#upload-file-message").text(
-                    "File not uploaded (perhaps it's too much big)");
+                alert("File not uploaded (perhaps it's too much big)\nFile shouldn't be larger than 3 MB");
             }
         });
     }
@@ -98,17 +101,26 @@ function openAlbum(id) {
         });
 
         jqxhr.done(function (album) {
-            // hide albums-div
             $("#albums-table").html("");
             clearAlbumViewDiv();
+            clearPictureView();
             hideGroupsList();
-        hideGroupDetails();
-            $("#album-view").show();
+            hideGroupDetails();
+            jqShow($("#album-view"));
 
             if (album.parent == null) {
                 $("#go-back-to-album").append("<button class='myButton' onclick='listAlbums()'>Go up a level</button>");
             } else {
                 $("#go-back-to-album").append("<button class='myButton' onclick='openAlbum(" + album.parent + ")'> Go up a level</button>");
+            }
+            if (album.albumList.length != 0 || album.pictureList.length != 0) {
+                $("#album-view-download").html(
+                    "<form method='GET' action='/api/album/" + album.id + "/download'><input class='myButton', type='submit' value='Download album'/></form>"
+                );
+            } else {
+                $("#album-view-download").html(
+                    "<p>This album is empty.<br/>Create a new album inside, or upload a photo.</p>"
+                );
             }
             $("#albums-in-album").append(
                 $.map(album.albumList, displayAlbum).join()
@@ -118,16 +130,34 @@ function openAlbum(id) {
             );
 
             globalState.currentAlbum = album.id;
-            displayIdOfCurrentAlbum();
 
-            $("#upload-file-form").show();
+            jqShow($("#upload-file-form"));
         });
     }
 }
 
 function openPicture(id) {
-    displayIdOfCurrentAlbum();
-    console.log("Picture open with id " + id);
+    clearAlbumViewDiv();
+    clearPictureView();
+    hideGroupDetails();
+    hideGroupsList();
+
+    var jqxhr = $.get({
+        url: "/api/picture/" + id,
+        cache: "false",
+        contentType: "application/json"
+    });
+
+    jqxhr.done(function(picture) {
+        var pictureViewDiv = $("#picture-view");
+        pictureViewDiv.html(
+            "<button class='myButton' onclick='openAlbum(" + globalState.currentAlbum + ")' >Go back to album</button>" +
+            "<form method='GET' action='/api/picture/" + id + "/download'><input type='submit' class='myButton' value='Download picture'></form>" +
+            "<p>Name: " + picture.name + "</p>" +
+            "<img src='data:image/jpeg;base64," + picture.originalContent + "' />"
+        );
+        jqShow(pictureViewDiv);
+    });
 }
 
 function displayAlbum(album) {
@@ -141,14 +171,16 @@ function displaySmallPicture(picture) {
         "<img src='data:image/jpeg;base64," + picture.content + "' /></td></tr>";
 }
 
-function displayIdOfCurrentAlbum() {
-    $("#current-album-display-tag").html("Current album id " + globalState.currentAlbum);
-}
-
 function clearAlbumViewDiv(){
+    $("#album-view-warning").html("");
     $("#go-back-to-album").html("");
+    $("#album-view-download").html("");
     $("#albums-in-album").html("");
     $("#pictures-in-album").html("");
+}
+
+function clearPictureView() {
+    $("#picture-view").html("");
 }
 
 function hideGroupsList() {

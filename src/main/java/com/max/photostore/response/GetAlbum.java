@@ -2,8 +2,6 @@ package com.max.photostore.response;
 
 import com.max.photostore.domain.Album;
 import com.max.photostore.domain.AppUser;
-import com.max.photostore.domain.Picture;
-
 
 import java.util.Collections;
 import java.util.Date;
@@ -17,7 +15,7 @@ public class GetAlbum {
     public Date timestamp;
     public AppUser owner;
     public Long parent;
-    public List<Picture> pictureList;
+    public List<GetPicture> pictureList;
     public List<GetAlbum> albumList;
 
     public GetAlbum(Album album) {
@@ -26,7 +24,7 @@ public class GetAlbum {
         this.timestamp = album.getTimestamp();
         this.parent = album.getParent() == null ? null : album.getParent().getId();
         this.owner = album.getOwner();
-        this.pictureList = album.getPictureList();
+        this.pictureList = album.getPictureList().stream().map(GetPicture::new).collect(Collectors.toList());
         this.albumList = album.getAlbumList().stream().map(GetAlbum::cutAlbumLine).collect(Collectors.toList());
     }
 

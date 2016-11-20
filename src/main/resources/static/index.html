@@ -14,35 +14,23 @@
 
 <body>
 
-<a href="signup.html">Sign up</a><br />
-<a id="log-in-link" href="login.html">Log in</a><br />
+<h1>
+    Welcome to Max Photostore!
+</h1>
+
+<p>
+    If you are visiting for the first time choose the Sign Up.<br />
+    Otherwise it's good to see you again, please choose Login
+</p>
+<button class="myButton" onclick='window.location.replace("signup.html")' >Sign up</button>
+<button class="myButton" id="log-in-link" onclick='window.location.replace("login.html")'>Login</button>
 
 <hr />
 
+<p>
+    This application was developed as a homework for Software Architecture class at Budapest University of Technology and Economics.
+</p>
 
-<script>
-
-    // bind the on-change event for the input element (triggered when a file
-    // is chosen)
-    $(document).ready(function() {
-        $("#log-out-link").on("click", function() {
-            $.ajax({
-                url: "/api/user/logout",
-                type: "POST",
-                cache: "false",
-                contentType: "application/json",
-                beforeSend: function() {
-                    $("#log-out-link").prop("disabled", true);
-                },
-                success: function() {
-                    window.location.replace("index.html");
-                }
-            });
-        });
-    });
-
-</script>
-s
 </body>
 
 </html>

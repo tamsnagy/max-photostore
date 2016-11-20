@@ -26,15 +26,15 @@ public class Album {
     @JsonBackReference
     private Album parent;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "album")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "album")
     @JsonManagedReference
     private List<Picture> pictureList;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Album> albumList;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "albums")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "albums")
     @JsonManagedReference
     private List<AppGroup> groups;
 
@@ -94,5 +94,21 @@ public class Album {
 
     public List<AppGroup> getGroups() {
         return groups;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Album album = (Album) o;
+
+        return id.equals(album.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

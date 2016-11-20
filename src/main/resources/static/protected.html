@@ -138,6 +138,7 @@
                 cache: "false",
                 contentType: "application/json",
                 beforeSend: function() {
+                    deleteCookie("userId");
                     $("#log-out-link").prop("disabled", true);
                 },
                 success: function() {
@@ -166,36 +167,40 @@
         <form id="create-album">
             <label>Album name</label>
             <input id="create-album-name" type="text" name="name">
-            <input type="button" value="Create Album" onclick="createAlbum()">
+            <input type="button" class="myButton" value="Create Album" onclick="createAlbum()">
         </form><br />
 
-        <button onclick="listAlbums()" id="list-albums-button">Albums</button><br />
-        <button onclick="listGroups()" id="list-groups-button">Groups</button>
+        <button onclick="listAlbums()" id="list-albums-button" class="myButton">Albums</button><br />
+        <button onclick="listGroups()" id="list-groups-button" class="myButton">Groups</button>
     </div>
 
     <div class="right">
         <!-- Upload file form -->
-        <form id="upload-file-form">
-            <label for="upload-file-input">Upload your file:</label>
-            <input id="upload-file-input" type="file" name="uploadfile" accept="*"/>
-            <input type="button" value="Upload" onclick="uploadPicture()">
+        <form id="upload-file-form" hidden>
+            <label for="upload-file-input">Upload a photo or few in a zip file:</label> <br />
+            <input class="myButton" id="upload-file-input" type="file" name="uploadfile" accept=".jpg,.jpeg,.png,.zip"/>
+            <input class="myButton" type="button" value="Upload" onclick="uploadPicture()">
             <br />
             <span id="upload-file-message"></span>
         </form>
         <br />
         <hr />
 
-        <div id="albums-div">
+        <div id="albums-div" hidden>
+            <div id="album-view-warning"></div>
             <table id="albums-table"></table>
         </div>
 
-        <div id="album-view">
+        <div id="album-view" hidden>
             <div id="go-back-to-album"></div>
+            <div id="album-view-download"></div>
             <table id="albums-in-album"></table>
             <table id="pictures-in-album"></table>
         </div>
 
-        <div id="groups-div">
+        <div id="picture-view" hidden></div>
+
+        <div id="groups-div" hidden>
             <div class="groups-header">My groups</div>
             <div id="groups-list"></div>
             <div class="groups-footer">
@@ -205,7 +210,7 @@
             </div>
         </div>
 
-        <div id="group-details-div"></div>
+        <div id="group-details-div" hidden></div>
     </div>
 </div>
 

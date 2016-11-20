@@ -1,9 +1,11 @@
 package com.max.photostore.controller;
 
 import com.max.photostore.exception.InternalServerErrorException;
+import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.SignupException;
 import com.max.photostore.request.LoginRequest;
 import com.max.photostore.request.RegisterUserRequest;
+import com.max.photostore.response.Login;
 import com.max.photostore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,10 +46,9 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         try {
-            return userService.login(request.username, request.password, response)
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (InternalServerErrorException e) {
+            final Login login = userService.login(request.username, request.password, response);
+            return ResponseEntity.ok(login);
+        } catch (PhotostoreException e) {
             return e.buildResponse();
         }
     }

@@ -22,6 +22,9 @@ public class Picture {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String contentType;
+
     private String note;
 
     private String location;
@@ -30,6 +33,9 @@ public class Picture {
 
     @Column(nullable = false)
     private byte[] content;
+
+    @Column(nullable = false)
+    private byte[] originalContent;
 
     @ManyToOne
     @JsonBackReference
@@ -40,24 +46,36 @@ public class Picture {
     @JsonBackReference
     private Album album;
 
-    public Picture(String name, String note, String location, Date timestamp, byte[] content, AppUser owner, Album album) {
+    public Picture(String name, String note, String location, Date timestamp, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
+        this.contentType = extension(name);
         this.note = note;
         this.location = location;
         this.timestamp = timestamp;
         this.content = content;
+        this.originalContent = originalContent;
         this.owner = owner;
         this.album = album;
     }
 
-    public Picture(String name, byte[] content, AppUser owner, Album album) {
+    public Picture(String name, byte[] content, byte[] originalContent, AppUser owner, Album album) {
         this.name = name;
+        this.contentType = extension(name);
         this.content = content;
+        this.originalContent = originalContent;
         this.owner = owner;
         this.album = album;
     }
 
     public Picture() {
+    }
+
+    public static String extension(final String fileName){
+        final String[] parts = fileName.split("\\.");
+        if(parts.length == 0) {
+            return "";
+        }
+        return parts[parts.length - 1].toLowerCase();
     }
 
     public void update(UpdatePicture picture) {
@@ -79,6 +97,10 @@ public class Picture {
         return note;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -89,6 +111,10 @@ public class Picture {
 
     public byte[] getContent() {
         return content;
+    }
+
+    public byte[] getOriginalContent() {
+        return originalContent;
     }
 
     public AppUser getOwner() {
