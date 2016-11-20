@@ -91,5 +91,6 @@ class PictureController {
         response.setContentLength(content.length);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + picture.getName() + "\"");
         response.getOutputStream().write(content);
+        response.flushBuffer();
     }
 }

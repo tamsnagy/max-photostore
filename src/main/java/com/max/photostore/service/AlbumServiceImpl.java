@@ -5,6 +5,7 @@ import com.max.photostore.domain.AppGroup;
 import com.max.photostore.domain.AppUser;
 import com.max.photostore.domain.Picture;
 import com.max.photostore.exception.AccessDeniedException;
+import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.repository.AlbumRepository;
@@ -17,12 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class AlbumServiceImpl implements AlbumService {
@@ -67,7 +72,7 @@ public class AlbumServiceImpl implements AlbumService {
     public GetAlbum getAlbum(Long albumId) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null) {
-            throw new ResourceMissingException("Parent album does not exist");
+            throw new ResourceMissingException("Album does not exist");
         }
         return new GetAlbum(album);
     }
@@ -115,6 +120,24 @@ public class AlbumServiceImpl implements AlbumService {
         albumRepository.delete(album);
     }
 
+    @Override
+    public byte[] zipAlbum(Long albumId) throws PhotostoreException {
+        Album album = albumRepository.findOne(albumId);
+        if (album == null) {
+            throw new ResourceMissingException("Album does not exist");
+        }
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+
+            zipAlbum(zipOutputStream, album, "");
+            zipOutputStream.finish();
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw new InternalServerErrorException(e);
+        }
+    }
+
     private void deleteAlbumsAndPhotos(Album album){
         List<Picture> pictureList = album.getPictureList();
         if(pictureList != null){
@@ -125,5 +148,20 @@ public class AlbumServiceImpl implements AlbumService {
             albumList.forEach(this::deleteAlbumsAndPhotos);
         }
         albumRepository.delete(albumList);
+    }
+
+    private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix) throws IOException {
+        zipOutputStream.putNextEntry(new ZipEntry(pathPrefix + "/" + picture.getName()));
+        zipOutputStream.write(picture.getOriginalContent());
+        zipOutputStream.closeEntry();
+    }
+
+    private void zipAlbum(ZipOutputStream zipOutputStream, final Album album, final String pathPrefix) throws IOException {
+        for(Picture picture: album.getPictureList()) {
+            zipPicture(zipOutputStream, picture, pathPrefix);
+        }
+        for(Album childAlbum: album.getAlbumList()) {
+            zipAlbum(zipOutputStream, childAlbum, pathPrefix + "/" + childAlbum.getName());
+        }
     }
 }

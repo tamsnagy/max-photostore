@@ -1,10 +1,13 @@
 package com.max.photostore.controller;
 
+import com.max.photostore.domain.Album;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.CreateAlbum;
+import com.max.photostore.response.GetAlbum;
 import com.max.photostore.service.AlbumService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 
 @Controller
@@ -71,5 +76,17 @@ class AlbumController {
         } catch (PhotostoreException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{albumId}/download")
+    void downloadAlbum(HttpServletResponse response, @PathVariable Long albumId, Principal principal) throws IOException, PhotostoreException {
+        //TODO can I see that album??
+        GetAlbum album = albumService.getAlbum(albumId);
+        byte[] content = albumService.zipAlbum(albumId);
+        response.setContentLength(content.length);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + album.name + ".zip\"");
+        response.setContentType("application/zip");
+        response.getOutputStream().write(content);
+        response.flushBuffer();
     }
 }

@@ -111,6 +111,10 @@ function openAlbum(id) {
             } else {
                 $("#go-back-to-album").append("<button class='myButton' onclick='openAlbum(" + album.parent + ")'> Go up a level</button>");
             }
+            $("#album-view-download").html(
+                "<form method='GET' action='/api/album/" + album.id + "/download'><input class='myButton', type='submit' value='Download album'/></form>"
+
+            );
             $("#albums-in-album").append(
                 $.map(album.albumList, displayAlbum).join()
             );
@@ -150,13 +154,6 @@ function openPicture(id) {
     });
 }
 
-function downloadPicture(id) {
-   $.get({
-        url: "/api/picture/" + id + "/download",
-        cache: "false"
-    });
-}
-
 function displayAlbum(album) {
     return "<tr onclick='openAlbum(" + album.id + ")'><td>" +
         "<table><tr><td>" + album.name +
@@ -175,6 +172,7 @@ function displayIdOfCurrentAlbum() {
 function clearAlbumViewDiv(){
     $("#album-view-warning").html("");
     $("#go-back-to-album").html("");
+    $("#album-view-download").html("");
     $("#albums-in-album").html("");
     $("#pictures-in-album").html("");
 }
