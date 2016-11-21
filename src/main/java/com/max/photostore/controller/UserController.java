@@ -3,6 +3,7 @@ package com.max.photostore.controller;
 import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.SignupException;
+import com.max.photostore.request.FindUserRequest;
 import com.max.photostore.request.LoginRequest;
 import com.max.photostore.request.RegisterUserRequest;
 import com.max.photostore.response.Login;
@@ -58,5 +59,11 @@ public class UserController {
     public ResponseEntity<?> logout(HttpSession session, HttpServletResponse response) {
         userService.logout(session, response);
         return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(value = "/finduser", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> findUser(@RequestBody FindUserRequest request) {
+        return ResponseEntity.ok(userService.findUser(request.query));
     }
 }

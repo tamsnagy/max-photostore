@@ -1,5 +1,6 @@
 package com.max.photostore.service;
 
+import com.max.photostore.domain.Album;
 import com.max.photostore.domain.AppGroup;
 import com.max.photostore.domain.AppUser;
 import com.max.photostore.exception.GroupException;
@@ -88,6 +89,7 @@ public class GroupServiceImpl implements GroupService {
         if (group.getMembers().contains(newMember))
             throw new GroupException("User already member of this group");
         group.getMembers().add(newMember);
+        groupRepository.save(group);
     }
 
     @Override
@@ -107,6 +109,21 @@ public class GroupServiceImpl implements GroupService {
         if (group.getOwner().equals(member))
             throw new GroupException("Owner of the group can not be removed from the group");
         group.getMembers().remove(member);
+        groupRepository.save(group);
+    }
+
+    @Override
+    public List<Album> getAlbums(long groupId, Principal principal) throws GroupException {
+        AppGroup group = groupRepository.findOne(groupId);
+        if (group == null)
+            throw new GroupException("Group does not exist");
+        AppUser user = userRepository.findOneByUsername(principal.getName());
+        if (!group.getMembers().contains(user))
+            throw new GroupException("You are not member of this group");
+        List<Album> albums = group.getAlbums();
+        if (albums == null)
+            albums = new ArrayList<>();
+        return albums;
     }
 
     private boolean validateGroupName(final String name) {

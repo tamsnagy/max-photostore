@@ -5,6 +5,7 @@ import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.request.CreateAlbum;
 import com.max.photostore.response.GetAlbum;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface AlbumService {
@@ -16,4 +17,6 @@ public interface AlbumService {
     void deleteAlbum(Long albumId, String name) throws PhotostoreException;
 
     byte[] zipAlbum(Long albumId) throws PhotostoreException;
+
+    void shareAlbum(long albumId, long groupId, Principal principal) throws PhotostoreException;
 }

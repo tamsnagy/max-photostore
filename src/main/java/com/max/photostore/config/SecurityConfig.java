@@ -12,14 +12,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers(
-                        "/", "/css/**", "/js/**",
-                        "/index.html", "/signup.html", "/login.html",
+                        "/", "/css/**", "/js/**", "/index.html",
                         "/api/user/signup", "/api/user/login").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login.html");
+                .loginPage("/index.html?login=true");
 
         http.csrf().disable();
     }

@@ -1,79 +1,211 @@
+:root {
+    --dark-20: rgb(20,20,20);
+    --dark-40: rgb(40,40,40);
+    --dark-60: rgb(60,60,60);
+    --dark-80: rgb(80,80,80);
+    --light-20: rgb(235,235,235);
+    --light-40: rgb(215,215,215);
+    --light-60: rgb(195,195,195);
+    --light-80: rgb(175,175,175);
+}
+
 * {
     font-family: Arial, Helvetica, sans-serif;
+    color: var(--light-20);
 }
 
-#groups-div, #group-details-div {
-    background-color: white;
-    border: 1px solid black;
-    clear: both;
+body {
+    background-color: var(--dark-20);
+    margin: 0px;
 }
 
-.groups-header, .group-details-header {
-    background-color: white;
-    border-bottom: 1px solid rgb(40,40,40);
+.blurred {
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+}
+
+.visitorinfo {
     text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    clear: both;
-    display: block;
-    padding: 10px 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
-.groups-footer {
-    border-top: 1px solid rgb(60,60,60);
-    background-color: white;
+.devfooter {
+    height: 40px;
+    position: fixed;
+    bottom:0;
+    width:100%;
     text-align: center;
-    clear: both;
-    display: block;
-    padding: 10px 20px;
+    color: var(--dark-80)
 }
 
-#groups-list {
-    background-color: white;
-    clear: both;
+.bigbutton {
+    font-size: 18px;
+    padding: 16px 31px;
 }
 
-.groups-list-item {
-    border-top: 1px solid rgb(235,235,235);
-    background-color: white;
-    border-bottom: 1px solid rgb(215,215,215);
-    font-size: 20px;
-    clear: both;
-    display: block;
-    padding: 10px 20px;
-    curson: pointer;
+.smallbutton {
+    font-size: 18px;
+    padding: 6px;
 }
 
-.myButton {
-    background-color:#44c767;
-    -moz-border-radius:28px;
-    -webkit-border-radius:28px;
-    border-radius:28px;
-    border:1px solid #18ab29;
+.bigbutton, .smallbutton {
+    background-color: #44c767;
+    -webkit-border-radius:8px;
+    border-radius: 8px;
+    border: 1px solid #18ab29;
     display:inline-block;
     cursor:pointer;
-    color:#ffffff;
-    font-family:Arial;
-    font-size:17px;
-    padding:16px 31px;
     text-decoration:none;
-    text-shadow:0px 1px 0px #2f6627;
-}
-.myButton:hover {
-    background-color:#5cbf2a;
-}
-.myButton:active {
-    position:relative;
-    top:1px;
+    text-shadow:0 1px 0 #2f6627;
+    color: var(--dark-20);
 }
 
-.left {
+.bigbutton:hover, .smallbutton:hover {
+    background-color: #5cbf2a;
+}
+
+.bigbutton:focus, .smallbutton:focus {
+    outline:0;
+}
+
+#div-login, #div-signup {
+    display: table;
+    overflow: hidden;
+    visibility: collapse;
+    width: 500px;
+    height: 300px;
+    background-color: rgba(40,40,40,0.8);
+    border: 1px solid var(--dark-60);
+    -webkit-border-radius:8px;
+    border-radius: 8px;
+    z-index: 1;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+#div-login input[type="text"], #div-login input[type="password"],
+#div-signup input[type="text"], #div-signup input[type="password"]{
+    margin: 8px 16px;
+    color: var(--dark-20);
+}
+
+.menu {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    height: 40px;
+    background-color: var(--dark-40);
+    border-bottom: 1px solid var(--dark-60);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.menuitem {
+    border-left: 1px solid var(--dark-20);
+    border-right: 1px solid var(--dark-60);
+    float: left;
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.menuitem:hover {
+    background-color: var(--dark-80);
+}
+
+.activeMenuItem {
+    background-color: var(--dark-60);
+}
+
+.albums-container-header, .groups-list-header, .group-details-header {
+    clear: both;
+    padding: 10px;
+    background-color: var(--dark-60);
+    overflow: hidden;
+    white-space: nowrap;
+    height: 90px;
+}
+
+#albums-list, #groups-list, #group-details {
+    padding: 16px;
+    clear: both;
+}
+
+.listItem {
+    float: left;
+    margin: 10px 10px 20px 10px;
+    width: 182px;
+    cursor: pointer;
+}
+
+.listItem:hover .listItemImage {
+    background-color: var(--dark-40);
+}
+
+.listItemImage {
+    clear: both;
+    width: 180px;
+    height: 180px;
+    border: 1px solid var(--dark-60);
+    text-align: center;
+}
+
+.listItemImage img {
+    max-width: 180px;
+    max-height: 180px;
+}
+
+.listItemName {
+    clear: both;
+    text-align: center;
+    padding: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#image-view {
+    z-index: 1;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.85);
+    display: table;
+    overflow: hidden;
+    top: 0;
     left: 0;
-    width: 250px;
-    float: left;
 }
 
-.right{
-    right:0;
+#image-view img {
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.groupListItem {
     float: left;
+    margin: 10px 10px 20px 10px;
+    width: 222px;
+    cursor: pointer;
+    border: 1px solid var(--dark-60);
+}
+
+.groupListItem:hover {
+    background-color: var(--dark-40);
+}
+
+.groupListItemRow {
+    clear: both;
+    padding: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 220px;
 }

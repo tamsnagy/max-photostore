@@ -96,6 +96,10 @@ public class Album {
         return groups;
     }
 
+    public void setGroups(List<AppGroup> groups) {
+        this.groups = groups;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

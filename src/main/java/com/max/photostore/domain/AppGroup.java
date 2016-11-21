@@ -1,5 +1,6 @@
 package com.max.photostore.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class AppGroup {
     private List<AppUser> members;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<Album> albums;
 
     public AppGroup(String name, AppUser owner) {

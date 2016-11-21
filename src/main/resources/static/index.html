@@ -4,32 +4,112 @@
 <head>
     <!-- JQuery import -->
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="/js/scripts.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/home.js"></script>
     <script>
         if (isLoggedIn())
             window.location.replace("protected.html");
+
+        $(document).ready(function() {
+            if ($.urlParam("login") === "true")
+                showLoginForm();
+
+            $("#sign-up-form :input").keyup(function (e) {
+                if (e.keyCode == 13)
+                    signup();
+                else if (e.keyCode == 27)
+                    hideSignupForm();
+            });
+
+            $("#log-in-form :input").keyup(function (e) {
+                if (e.keyCode == 13)
+                    login();
+                else if (e.keyCode == 27)
+                    hideLoginForm();
+            });
+        });
     </script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-<h1>
+<h1 class="welcome" align="center" style="text-shadow: 2px 2px 0 var(--dark-80);">
     Welcome to Max Photostore!
 </h1>
 
-<p>
+<div class="visitorinfo">
     If you are visiting for the first time choose the Sign Up.<br />
-    Otherwise it's good to see you again, please choose Login
-</p>
-<button class="myButton" onclick='window.location.replace("signup.html")' >Sign up</button>
-<button class="myButton" id="log-in-link" onclick='window.location.replace("login.html")'>Login</button>
+    Otherwise it's good to see you again, please choose Login<br />
+    <p>
+        <button class="bigbutton" style="margin: 10px; width: 180px;" onclick='showSignupForm()' >Sign up</button>
+        <button class="bigbutton" style="margin: 10px; width: 180px;" onclick='showLoginForm();'>Login</button>
+    </p>
+</div>
 
-<hr />
-
-<p>
+<div class="devfooter">
     This application was developed as a homework for Software Architecture class at Budapest University of Technology and Economics.
-</p>
+</div>
+
+<div id="div-login">
+    <div style="display: table-cell;vertical-align: middle;">
+        <div align="center">
+        <form id="log-in-form">
+            <table>
+                <tr>
+                    <td>Username</td>
+                    <td><input id="log-in-username" name="username" type="text" /></td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td><input id="log-in-password" name="password" type="password" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input id="log-in-button" onclick="login();" class="smallbutton" style="margin: 10px; width: 80px;" type="button" value="Log in" />
+                        <input class="smallbutton" onclick="hideLoginForm();" style="margin: 10px; width: 80px;" type="button" value="Cancel" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center"><span id="log-in-message">&nbsp;</span></td>
+                </tr>
+            </table>
+        </form>
+        </div>
+    </div>
+</div>
+
+<div id="div-signup">
+    <div style="display: table-cell;vertical-align: middle;">
+        <div align="center">
+            <form id="sign-up-form">
+                <table>
+                    <tr>
+                        <td>Username</td>
+                        <td><input id="sign-up-username" name="username" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>E-mail</td>
+                        <td><input id="sign-up-email" name="email" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>Password</td>
+                        <td><input id="sign-up-password" name="password" type="password" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center">
+                            <input id="sign-up-button" onclick="signup();" class="smallbutton" style="margin: 10px; width: 80px;" type="button" value="Sign up" />
+                            <input class="smallbutton" onclick="hideSignupForm();" style="margin: 10px; width: 80px;" type="button" value="Cancel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center"><span id="sign-up-message">&nbsp;</span></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
 
 </body>
 
