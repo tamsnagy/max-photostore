@@ -164,7 +164,9 @@ function listAlbums() {
     });
 
     jqxhr.done(function (albumList) {
+        $("#create-album").css("display", "");
         $("#download-album-button").css("display", "none");
+        $("#delete-album-button").css("display", "none");
         $("#share-album-div").css("display", "none");
         $("#upload-file-div").css("display", "none");
 
@@ -193,7 +195,6 @@ function openAlbum(id) {
             var albumsList = $("#albums-list");
             albumsList.html("");
 
-            $("#upload-file-div").css("display", "");
 
             var downloadAlbumButton = $("#download-album-button");
             downloadAlbumButton.css("display", "none");
@@ -201,23 +202,33 @@ function openAlbum(id) {
             var deleteAlbumButton = $("#delete-album-button");
             deleteAlbumButton.css("display", "none");
 
+            var uploadFileDiv = $("#upload-file-div");
+
+            if(album.owner.id == userId()) {
+                uploadFileDiv.css("display", "")
+                deleteAlbumButton.css("display", "");
+                deleteAlbumButton.off("click").on("click", function (e) {
+                    e.preventDefault();
+                    deleteAlbum(album.id, album.parent);
+                });
+            } else {
+                $("#create-album").css("display", "none");
+                uploadFileDiv.css("display", "none");
+            }
+
             albumsList.append(createAlbumGoBackItem(album.parent));
+
             if (album.albumList.length != 0 || album.pictureList.length != 0) {
                 downloadAlbumButton.css("display", "");
-                deleteAlbumButton.css("display", "");
                 downloadAlbumButton.off("click").on("click", function(e) {
                     e.preventDefault();
                     window.location.href = "/api/album/" + album.id + "/download";
                 });
-                deleteAlbumButton.off("click").on("click", function (e) {
-                    e.preventDefault();
-                    deleteAlbum(album.id, album.parent);
-                })
             } else {
                 downloadAlbumButton.css("display", "none");
             }
 
-            if (album.parent == null) {
+            if (album.parent == null && album.owner.id == userId()) {
                 populateGroupSelector();
                 $("#share-album-div").css("display", "");
             } else

@@ -23,6 +23,7 @@ public class Album {
     private AppUser owner;
 
     @ManyToOne
+    @JoinColumn(name = "parent_album_id")
     @JsonBackReference
     private Album parent;
 
@@ -30,7 +31,7 @@ public class Album {
     @JsonManagedReference
     private List<Picture> pictureList = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parent")
     @JsonManagedReference
     private List<Album> albumList = new ArrayList<>();
 
