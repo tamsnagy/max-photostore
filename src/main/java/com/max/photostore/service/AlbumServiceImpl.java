@@ -99,7 +99,7 @@ public class AlbumServiceImpl implements AlbumService {
         }
         Set<Album> albumSet = albumRepository.findByOwnerAndParentIsNull(owner);
         List<AppGroup> groupList = groupRepository.findByMembersInOrOwner(Collections.singletonList(owner), owner);
-        groupList.forEach(group -> albumSet.addAll(albumRepository.findByGroupsIn(Collections.singletonList(group))));
+        groupList.forEach(group -> albumSet.addAll(albumRepository.findByGroupsInAndParentIsNull(Collections.singletonList(group))));
         return albumSet.stream().map(GetAlbum::new).collect(Collectors.toList());
     }
 

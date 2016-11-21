@@ -13,6 +13,6 @@ import java.util.Set;
 @Repository
 public interface AlbumRepository extends CrudRepository<Album, Long> {
     Set<Album> findByOwnerAndParentIsNull(AppUser owner);
-    Set<Album> findByGroupsIn(List<AppGroup> groupList);
+    Set<Album> findByGroupsInAndParentIsNull(List<AppGroup> groupList);
     Album findOneByPictureListIn(List<Picture> pictureList);
 }
