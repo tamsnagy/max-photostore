@@ -10,4 +10,5 @@ import java.util.List;
 public interface UserRepository extends CrudRepository<AppUser, Long> {
     AppUser findOneByUsername(String username);
     AppUser findOneByEmail(String email);
+    List<AppUser> findByUsernameContainingOrEmailContaining(String username, String email);
 }

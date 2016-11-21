@@ -88,6 +88,7 @@ public class GroupServiceImpl implements GroupService {
         if (group.getMembers().contains(newMember))
             throw new GroupException("User already member of this group");
         group.getMembers().add(newMember);
+        groupRepository.save(group);
     }
 
     @Override
@@ -107,6 +108,7 @@ public class GroupServiceImpl implements GroupService {
         if (group.getOwner().equals(member))
             throw new GroupException("Owner of the group can not be removed from the group");
         group.getMembers().remove(member);
+        groupRepository.save(group);
     }
 
     private boolean validateGroupName(final String name) {

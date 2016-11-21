@@ -1,17 +1,158 @@
 var globalState = {};
 
-function jqShow(jqSelector){
-    jqSelector.removeAttr("hidden");
-    jqSelector.show();
+function showLoginForm() {
+    $("#div-login").css("visibility", "visible");
+    $(".visitorinfo").addClass("blurred");
+    $("#log-in-username").focus();
 }
 
-function listGroups() {
-    refreshGroups();
-    $("#groups-div").show();
-    $("#group-details-div").hide();
-    $("#album-view").hide();
-    $("#albums-div").hide();
-    $("#upload-file-form").hide();
+function hideLoginForm() {
+    $("#div-login").css("visibility", "collapse");
+    clearLoginForm();
+    $(".visitorinfo").removeClass("blurred");
+}
+
+function showSignupForm() {
+    $("#div-signup").css("visibility", "visible");
+    $(".visitorinfo").addClass("blurred");
+    $("#sign-up-username").focus();
+}
+
+function hideSignupForm() {
+    $("#div-signup").css("visibility", "collapse");
+    clearSignupForm();
+    $(".visitorinfo").removeClass("blurred");
+}
+
+function clearSignupForm() {
+    $("#sign-up-username").val("");
+    $("#sign-up-email").val("");
+    $("#sign-up-password").val("");
+    $("#sign-up-message").html("&nbsp;");
+}
+
+function clearLoginForm() {
+    $("#log-in-username").val("");
+    $("#log-in-password").val("");
+    $("#log-in-message").html("&nbsp;");
+}
+
+function login() {
+    $.ajax({
+        url: "/api/user/login",
+        type: "POST",
+        data: JSON.stringify($("#log-in-form").serializeObject()),
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            $("#log-in-button").prop("disabled", true);
+            $("#log-in-message").html("&nbsp;");
+        },
+        success: function(xhr, status, error) {
+            document.cookie = "userId=" + xhr.userId;
+            window.location.replace("protected.html");
+        },
+        error: function(xhr, status, error) {
+            $("#log-in-message").html(xhr.status == 401 ? "Invalid username or password" : xhr.responseText);
+        }
+    });
+}
+
+function signup() {
+    $.ajax({
+        url: "/api/user/signup",
+        type: "POST",
+        data: JSON.stringify($("#sign-up-form").serializeObject()),
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            $("#sign-up-button").prop("disabled", true);
+            $("#sign-up-message").html("&nbsp;");
+        },
+        success: function() {
+            hideSignupForm();
+            showLoginForm();
+        },
+        error: function(xhr, status, error) {
+            $("#sign-up-message").html(xhr.responseText);
+        },
+        complete: function() {
+            $("#sign-up-button").prop("disabled", false);
+        }
+    });
+}
+
+function logout() {
+    $.ajax({
+        url: "/api/user/logout",
+        type: "POST",
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            deleteCookie("userId");
+        },
+        success: function() {
+            window.location.replace("index.html");
+        },
+    });
+}
+
+function hideAllContainers() {
+    $("#albums-container").css("display", "none");
+    $("#groups-list-container").css("display", "none");
+    $("#group-details-container").css("display", "none");
+    $("#image-view").css("display", "none");
+}
+
+function clearMenuItems() {
+    $(".menuitem").removeClass("activeMenuItem");
+}
+
+function menuAlbums() {
+    hideAllContainers();
+    clearMenuItems();
+    $("#menu-albums").addClass("activeMenuItem");
+    $("#albums-container").css("display", "");
+    listAlbums();
+}
+
+function menuGroups() {
+    hideAllContainers();
+    clearMenuItems();
+    $("#menu-groups").addClass("activeMenuItem");
+    $("#groups-list-container").css("display", "");
+    listGroups();
+}
+
+function createAlbumGoBackItem(parent) {
+    var str = "";
+    if (parent == null)
+        str += "<div class='listItem' onclick='listAlbums()'>";
+    else
+        str += "<div class='listItem' onclick='openAlbum("+parent+")'>";
+    str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
+    str += "<img src='images/arrow.png' />";
+    str += "</div></div></div>";
+    str += "<div class='listItemName' title='Go back to parent album'>Go up</div></div>";
+    return str;
+}
+
+function createAlbumItem(album) {
+    var str = "<div class='listItem' onclick='openAlbum("+album.id+")'>";
+    str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
+    str += "<img src='images/album.png' />";
+    str += "</div></div></div>";
+    str += "<div class='listItemName' title='"+album.name+"'>"+album.name+"</div></div>";
+    return str;
+}
+
+function createPictureItem(picture) {
+    var str = "<div class='listItem' onclick='openPicture("+picture.id+")'>";
+    str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
+    str += "<img src='data:image/jpeg;base64," + picture.content + "' />";
+    str += "</div></div></div>";
+    str += "<div class='listItemName'>&nbsp;</div></div>";
+    return str;
 }
 
 function listAlbums() {
@@ -22,24 +163,83 @@ function listAlbums() {
     });
 
     jqxhr.done(function (albumList) {
-        $("#albums-table").html("");
+        $("#download-album-button").css("display", "none");
+        $("#share-album-button").css("display", "none");
+        $("#upload-file-div").css("display", "none");
+
+        var albumsListDiv = $("#albums-list");
+        albumsListDiv.html("");
         globalState.currentAlbum = null;
-        clearAlbumViewDiv();
-        clearPictureView();
-        hideGroupsList();
-        hideGroupDetails();
-        $("#upload-file-form").hide();
-        var albumsDiv = $("#albums-div");
         if(albumList.length == 0) {
-            $("#album-view-warning")
-                .append("<p>You don't have any albums yet. It's time to create one.</p>");
+            $(albumsListDiv).append("<p align='center'>You don't have any albums yet. It's time to create one.</p>");
         } else {
-            $("#albums-table").append(
-                $.map(albumList, displayAlbum).join()
-            );
+            $(albumsListDiv).append($.map(albumList, createAlbumItem).join(""));
         }
-        jqShow(albumsDiv);
     });
+}
+
+function openAlbum(id) {
+    if (id == null) {
+        listAlbums();
+    } else {
+        var jqxhr = $.get({
+            url: "/api/album/" + id,
+            cache: "false",
+            contentType: "application/json"
+        });
+
+        jqxhr.done(function (album) {
+            var albumsList = $("#albums-list");
+            albumsList.html("");
+
+            $("#share-album-button").css("display", "");
+            $("#upload-file-div").css("display", "");
+
+            var downloadAlbumButton = $("#download-album-button");
+            downloadAlbumButton.css("display", "none");
+            albumsList.append(createAlbumGoBackItem(album.parent));
+            if (album.albumList.length != 0 || album.pictureList.length != 0) {
+                downloadAlbumButton.css("display", "");
+                downloadAlbumButton.off("click").on("click", function(e) {
+                    e.preventDefault();
+                    window.location.href = "/api/album/" + album.id + "/download";
+                });
+            } else {
+                downloadAlbumButton.css("display", "none");
+            }
+            albumsList.append(
+                $.map(album.albumList, createAlbumItem).join("")
+            );
+            albumsList.append(
+                $.map(album.pictureList, createPictureItem).join("")
+            );
+
+            globalState.currentAlbum = album.id;
+        });
+    }
+}
+
+function createAlbum() {
+    var requestBody = $("#create-album").serializeObject();
+    var albumName = $("#create-album-name").val();
+    if(albumName == "" || albumName == null || albumName === undefined) {
+        alert("Please give a name to your album");
+    } else {
+        requestBody.parentAlbum = globalState.currentAlbum;
+        $.ajax({
+            url: "/api/album/",
+            type: "POST",
+            data: JSON.stringify(requestBody),
+            cache: "false",
+            contentType: "application/json",
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+            },
+            complete: function () {
+                openAlbum(globalState.currentAlbum);
+            }
+        });
+    }
 }
 
 function uploadPicture(){
@@ -67,81 +267,7 @@ function uploadPicture(){
     }
 }
 
-function createAlbum() {
-    var requestBody = $("#create-album").serializeObject();
-    var albumName = $("#create-album-name").val();
-    if(albumName == "" || albumName == null || albumName === undefined) {
-        alert("Please give a name to your album");
-    } else {
-        requestBody.parentAlbum = globalState.currentAlbum;
-        $.ajax({
-            url: "/api/album/",
-            type: "POST",
-            data: JSON.stringify(requestBody),
-            cache: "false",
-            contentType: "application/json",
-            error: function (xhr, status, error) {
-                $("#sign-up-message").text(xhr.responseText);
-            },
-            complete: function () {
-                openAlbum(globalState.currentAlbum);
-            }
-        });
-    }
-}
-
-function openAlbum(id) {
-    if (id == null) {
-        listAlbums();
-    } else {
-        var jqxhr = $.get({
-            url: "/api/album/" + id,
-            cache: "false",
-            contentType: "application/json"
-        });
-
-        jqxhr.done(function (album) {
-            $("#albums-table").html("");
-            clearAlbumViewDiv();
-            clearPictureView();
-            hideGroupsList();
-            hideGroupDetails();
-            jqShow($("#album-view"));
-
-            if (album.parent == null) {
-                $("#go-back-to-album").append("<button class='myButton' onclick='listAlbums()'>Go up a level</button>");
-            } else {
-                $("#go-back-to-album").append("<button class='myButton' onclick='openAlbum(" + album.parent + ")'> Go up a level</button>");
-            }
-            if (album.albumList.length != 0 || album.pictureList.length != 0) {
-                $("#album-view-download").html(
-                    "<form method='GET' action='/api/album/" + album.id + "/download'><input class='myButton', type='submit' value='Download album'/></form>"
-                );
-            } else {
-                $("#album-view-download").html(
-                    "<p>This album is empty.<br/>Create a new album inside, or upload a photo.</p>"
-                );
-            }
-            $("#albums-in-album").append(
-                $.map(album.albumList, displayAlbum).join()
-            );
-            $("#pictures-in-album").append(
-                $.map(album.pictureList, displaySmallPicture).join()
-            );
-
-            globalState.currentAlbum = album.id;
-
-            jqShow($("#upload-file-form"));
-        });
-    }
-}
-
 function openPicture(id) {
-    clearAlbumViewDiv();
-    clearPictureView();
-    hideGroupDetails();
-    hideGroupsList();
-
     var jqxhr = $.get({
         url: "/api/picture/" + id,
         cache: "false",
@@ -149,44 +275,175 @@ function openPicture(id) {
     });
 
     jqxhr.done(function(picture) {
-        var pictureViewDiv = $("#picture-view");
-        pictureViewDiv.html(
-            "<button class='myButton' onclick='openAlbum(" + globalState.currentAlbum + ")' >Go back to album</button>" +
-            "<form method='GET' action='/api/picture/" + id + "/download'><input type='submit' class='myButton' value='Download picture'></form>" +
-            "<p>Name: " + picture.name + "</p>" +
-            "<img src='data:image/jpeg;base64," + picture.originalContent + "' />"
-        );
-        jqShow(pictureViewDiv);
+        $("#image-view-content").html("<img src='data:image/jpeg;base64," + picture.originalContent + "' />");
+        $("#image-view").css("display", "");
+
+        // TODO download button
+        $("#download-picture-button").off("click").on("click", function(e) {
+            e.preventDefault();
+            window.location.href = "/api/picture/" + picture.id + "/download";
+        });
     });
 }
 
-function displayAlbum(album) {
-    return "<tr onclick='openAlbum(" + album.id + ")'><td>" +
-        "<table><tr><td>" + album.name +
-        "</td></tr><tr><td>" + album.owner.username + "</td></tr></table></td></tr>";
+function closePicture() {
+    $("#image-view").css("display", "none");
+    $("#image-view-content").html("");
 }
 
-function displaySmallPicture(picture) {
-    return "<tr onclick='openPicture(" + picture.id + ")'><td>" +
-        "<img src='data:image/jpeg;base64," + picture.content + "' /></td></tr>";
+function createGroupListItem(group) {
+    var str = "<div class='groupListItem' onclick='openGroup("+group.id+");'>";
+    str += "<div class='groupListItemRow'>Name: "+group.name+"</div>";
+    str += "<div class='groupListItemRow'>Owner: "+group.owner.username+"</div>";
+    str += "</div>";
+    return str;
 }
 
-function clearAlbumViewDiv(){
-    $("#album-view-warning").html("");
-    $("#go-back-to-album").html("");
-    $("#album-view-download").html("");
-    $("#albums-in-album").html("");
-    $("#pictures-in-album").html("");
+function listGroups() {
+    $.ajax({
+        url: "/api/group/",
+        type: "GET",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            $("#groups-list").html("");
+            $.each(xhr.data, function(i, item) {
+                $("#groups-list").append(createGroupListItem(item));
+            });
+        }
+    });
 }
 
-function clearPictureView() {
-    $("#picture-view").html("");
+function createGroup() {
+    $.ajax({
+        url: "/api/group/",
+        type: "PUT",
+        data: JSON.stringify($("#create-group-form").serializeObject()),
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            $("#create-group-button").prop("disabled", true);
+        },
+        success: function() {
+            listGroups();
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        },
+        complete: function() {
+            $("#create-group-button").prop("disabled", false);
+            $("#create-group-name").val("");
+        }
+    });
 }
 
-function hideGroupsList() {
-    $("#groups-div").hide();
+function deleteGroup() {
+    $.ajax({
+        url: "/api/group/" + currentGroup,
+        type: "DELETE",
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            $("#delete-group-button").prop("disabled", true);
+        },
+        success: function() {
+            menuGroups();
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        },
+        complete: function() {
+            $("#delete-group-button").prop("disabled", false);
+        }
+    });
 }
 
-function hideGroupDetails() {
-    $("#group-details-div").hide();
+function openGroup(id) {
+    $.ajax({
+        url: "/api/group/"+id,
+        type: "GET",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            clearGroupDetails();
+
+            var group = xhr.data;
+
+            $("#group-details-name").html(group.name);
+            $("#group-details-owner").html(group.owner.username);
+            $.each(group.albums, function(i, item) {
+                $("#group-details-albums").append("<li>"+item.name+"</li>");
+            });
+            $.each(group.members, function(i, item) {
+                $("#group-details-members").append("<li>"+item.username+" <a href='javascript:removeMember("+item.id+");'>Remove</a></li>");
+            });
+
+
+            $("#delete-group-button").off("click").on("click", function() {
+                deleteGroup();
+            });
+
+            currentGroup = id;
+
+            $("#groups-list-container").css("display", "none");
+            $("#group-details-container").css("display", "");
+        }
+    });
+}
+
+function clearGroupDetails() {
+    $("#group-details-name").html("");
+    $("#group-details-owner").html("");
+    $("#group-details-albums").html("");
+    $("#group-details-members").html("");
+}
+
+function removeMember(id) {
+    $.ajax({
+        url: "/api/group/"+currentGroup+"/removemember",
+        type: "POST",
+        data: JSON.stringify({"id":+id}),
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            openGroup(currentGroup);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function findUser() {
+    $.ajax({
+        url: "/api/user/finduser",
+        type: "POST",
+        data: JSON.stringify({"query":$("#find-user-query").val()}),
+        cache: "false",
+        contentType: "application/json",
+        beforeSend: function() {
+            $("#find-user-results").html("");
+        },
+        success: function(xhr, status, error) {
+            $.each(xhr.users, function(i, item) {
+                $("#find-user-results").append("<li>"+item.username+" <a href='javascript:;' onclick='addMember("+item.id+")'>Add to group</a></li>");
+            });
+        }
+    });
+}
+
+function addMember(id) {
+    $.ajax({
+        url: "/api/group/"+currentGroup+"/addmember",
+        type: "POST",
+        data: JSON.stringify({"id":id}),
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            openGroup(currentGroup);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
 }

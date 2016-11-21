@@ -6,6 +6,7 @@ import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.SignupException;
 import com.max.photostore.exception.UnauthorizedException;
 import com.max.photostore.repository.UserRepository;
+import com.max.photostore.response.FindUser;
 import com.max.photostore.response.Login;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -113,6 +114,11 @@ public class UserServiceImpl implements UserService {
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
+    }
+
+    @Override
+    public FindUser findUser(String query) {
+        return new FindUser(userRepository.findByUsernameContainingOrEmailContaining(query, query));
     }
 
     private boolean validateUsername(final String username) {
