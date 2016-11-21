@@ -216,3 +216,24 @@ body {
     overflow: hidden;
     width: 220px;
 }
+
+#image-edit {
+    z-index: 3;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.85);
+    display: table;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+}
+
+#image-edit-id {
+    z-index: 4;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 250px;
+    left: 250px;
+}

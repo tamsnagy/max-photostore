@@ -324,6 +324,12 @@ function openPicture(id, albumId) {
             e.preventDefault();
             window.location.href = "/api/picture/" + picture.id + "/download";
         });
+        var editPictureButton = $("#edit-picture-button");
+        editPictureButton.off("click").on("click", function(e) {
+            e.preventDefault();
+            closePicture()
+            showPictureEdit(picture);
+        });
         var deletePictureButton = $("#delete-picture-button");
         deletePictureButton.off("click").on("click", function(e) {
             e.preventDefault();
@@ -331,15 +337,43 @@ function openPicture(id, albumId) {
         });
         if(picture.owner.id == userId()) {
             deletePictureButton.css("display", "");
+            editPictureButton.css("display", "");
         } else {
             deletePictureButton.css("display", "none");
+            editPictureButton.css("display", "none");
         }
+        $("#picture-name").html(picture.name);
+        $("#picture-name-div").css("display", "");
+        if(picture.location != null && picture.location != "") {
+            $("#picture-location").html(picture.location);
+            $("#picture-location-div").css("display", "");        }
+        if(picture.timestamp != null && picture.timestamp != "") {
+            $("#picture-date").html(new Date(picture.timestamp).toDateString());
+            $("#picture-date-div").css("display", "");
+        } else {
+            $("#picture-date-div").css("display", "none");
+        }
+        if(picture.owner.username != null && picture.owner.username != "") {
+            $("#picture-owner").html(picture.owner.username);
+            $("#picture-owner-div").css("display", "");
+        }
+        if(picture.note != null && picture.note != "") {
+            $("#picture-note").html(picture.note);
+            $("#picture-note-div").css("display", "");
+        }
+
     });
 }
 
 function closePicture() {
     $("#image-view").css("display", "none");
+    $("#picture-name-div").css("display", "none");
+    $("#picture-location-div").css("display", "none");
+    $("#picture-date-div").css("display", "none");
+    $("#picture-owner-div").css("display", "none");
+    $("#picture-note-div").css("display", "none");
     $("#image-view-content").html("");
+
 }
 
 function createGroupListItem(group) {
@@ -562,4 +596,38 @@ function deletePicture(parentId, pictureId) {
             alert("Delete failed");
         }
     });
+}
+
+function showPictureEdit(picture) {
+    $("#image-edit").css("display", "");
+    $("#picture-location-input").val(picture.location);
+    $("#picture-date-input").val(new Date(picture.timestamp).toISOString().slice(0,10));
+    $("#picture-note-input").val(picture.note);
+    $("#image-edit-submit").off("click").on("click", function(e) {
+        e.preventDefault();
+        var editRequestBody = {};
+        editRequestBody.location = $("#picture-location-input").val();
+        editRequestBody.timestamp = new Date($("#picture-date-input").val()).getTime();
+        editRequestBody.note = $("#picture-note-input").val();
+        $.ajax({
+            url: "/api/picture/"+picture.id,
+            type: "PUT",
+            data: JSON.stringify(editRequestBody),
+            cache: "false",
+            contentType: "application/json",
+            success: function(xhr, status, error) {
+                closePictureEdit();
+                openPicture(picture.id, picture.albumId);
+            }
+        });
+    });
+    $("#image-edit-cancel").off("click").on("click", function(e) {
+        e.preventDefault();
+        closePictureEdit();
+        openPicture(picture.id, picture.albumId);
+    });
+}
+
+function closePictureEdit() {
+    $("#image-edit").css("display", "none");
 }

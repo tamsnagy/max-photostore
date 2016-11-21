@@ -97,13 +97,41 @@
 
 <div id="image-view" style="display:none;">
     <div style="position:fixed;top:0;right:0;z-index:2;">
-        <button id="download-picture-button" class="smallbutton" style="margin: 10px; width: 180px;">Download picture</button>
-        <button id="delete-picture-button" class="smallbutton" style="margin: 10px; width: 180px;">Delete picture</button>
-        <button id="close-picture-button" onclick="closePicture();" class="smallbutton" style="margin: 10px; width: 180px;">Close picture</button>
+        <button id="edit-picture-button" class="smallbutton" style="margin: 10px; width: 150px;">Edit</button>
+        <button id="download-picture-button" class="smallbutton" style="margin: 10px; width: 150px;">Download</button>
+        <button id="delete-picture-button" class="smallbutton" style="margin: 10px; width: 150px;">Delete</button>
+        <button id="close-picture-button" onclick="closePicture();" class="smallbutton" style="margin: 10px; width: 180px;">Close</button>
+    </div>
+    <div style="position:fixed;top:0;left:0;z-index:1;margin: 20px">
+        <div id="picture-name-div" style="display:none;">
+            <label>Name: </label><label id="picture-name"></label>
+        </div>
+        <div id="picture-location-div" style="display:none;">
+            <label>Location: </label><label id="picture-location"></label>
+        </div>
+        <div id="picture-date-div" style="display:none;">
+            <label>Date: </label><label id="picture-date"></label>
+        </div>
+        <div id="picture-owner-div" style="display:none;">
+            <label>Owner: </label><label id="picture-owner"></label>
+        </div>
+        <div id="picture-note-div" style="display:none;">
+            <label>Note: </label><label id="picture-note"></label>
+        </div>
     </div>
     <div style="display:table-cell;vertical-align: middle;">
         <div id="image-view-content" align="center"></div>
     </div>
+</div>
+
+<div id="image-edit" style="display:none;">
+    <form id="image-edit-id" style="display:table-cell;vertical-align: middle;">
+        <label>Location: </label><input type="text" style="color: black" id="picture-location-input" name="location"/><br />
+        <label>Date: </label><input type="date" style="color: black" id="picture-date-input" name="timestamp"/><br />
+        <label>Note: </label><input type="text" style="color: black" id="picture-note-input" name="note"/><br />
+        <button class="smallbutton" id="image-edit-submit" style="margin: 10px; width: 150px;">Save</button>
+        <button class="smallbutton" id="image-edit-cancel" style="margin: 10px; width: 150px;">Cancel</button>
+    </form>
 </div>
 
 </body>
