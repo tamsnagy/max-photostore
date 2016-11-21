@@ -37,7 +37,7 @@ public class RepositoryConfigTest extends RepositoryConfig {
 
     @Override
     protected int redisPort() throws URISyntaxException {
-        return 6379;
+        return 6378;
     }
 
     @Override
