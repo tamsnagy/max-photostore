@@ -101,6 +101,11 @@ public class PhotostoreApplicationTests {
         userRepository.save(user2);
     }
 
+    @Test
+    public void initializeSpringContext(){
+        
+    }
+
 	@Test
     @Ignore
 	public void testAlbumCreation() throws PhotostoreException {
