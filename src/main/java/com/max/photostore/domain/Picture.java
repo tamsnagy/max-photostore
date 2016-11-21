@@ -5,6 +5,7 @@ import com.max.photostore.request.UpdatePicture;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +42,7 @@ public class Picture {
     @JsonBackReference
     private AppUser owner;
 
-    @ManyToOne
+    @ManyToOne(fetch= FetchType.EAGER)
     @JoinColumn(name = "album_id", nullable = false)
     @JsonBackReference
     private Album album;

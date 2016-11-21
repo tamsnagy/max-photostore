@@ -125,12 +125,6 @@ public class AlbumServiceImpl implements AlbumService {
         if(! album.getOwner().equals(owner)) {
             throw new AccessDeniedException("User " + name + " does not have right to delete album " + albumId);
         }
-        Album parentAlbum = album.getParent();
-        deleteAlbumsAndPhotos(album);
-        if(parentAlbum != null) {
-            parentAlbum.getAlbumList().remove(album);
-            albumRepository.save(parentAlbum);
-        }
         albumRepository.delete(album);
     }
 
@@ -181,18 +175,6 @@ public class AlbumServiceImpl implements AlbumService {
         album.getAlbumList().forEach(childAlbum -> albums.addAll(getAllChilds(childAlbum)));
         albums.add(album);
         return albums;
-    }
-
-    private void deleteAlbumsAndPhotos(Album album){
-        List<Picture> pictureList = album.getPictureList();
-        if(pictureList != null){
-            pictureRepository.delete(pictureList);
-        }
-        List<Album> albumList = album.getAlbumList();
-        if(albumList != null){
-            albumList.forEach(this::deleteAlbumsAndPhotos);
-        }
-        albumRepository.delete(albumList);
     }
 
     private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix, final HashSet<String> usedEntryNames) throws IOException {

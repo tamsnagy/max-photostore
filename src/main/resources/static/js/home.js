@@ -198,13 +198,21 @@ function openAlbum(id) {
             var downloadAlbumButton = $("#download-album-button");
             downloadAlbumButton.css("display", "none");
 
+            var deleteAlbumButton = $("#delete-album-button");
+            deleteAlbumButton.css("display", "none");
+
             albumsList.append(createAlbumGoBackItem(album.parent));
             if (album.albumList.length != 0 || album.pictureList.length != 0) {
                 downloadAlbumButton.css("display", "");
+                deleteAlbumButton.css("display", "");
                 downloadAlbumButton.off("click").on("click", function(e) {
                     e.preventDefault();
                     window.location.href = "/api/album/" + album.id + "/download";
                 });
+                deleteAlbumButton.off("click").on("click", function (e) {
+                    e.preventDefault();
+                    deleteAlbum(album.id, album.parent);
+                })
             } else {
                 downloadAlbumButton.css("display", "none");
             }
@@ -501,6 +509,21 @@ function shareAlbum() {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
+        }
+    });
+}
+
+function deleteAlbum(albumId, parentId) {
+    $.ajax({
+        url: "/api/album/"+albumId,
+        type: "DELETE",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            openAlbum(parentId);
+        },
+        error: function () {
+            alert("Delete failed");
         }
     });
 }
