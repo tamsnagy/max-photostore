@@ -141,6 +141,7 @@ function createAlbumItem(album) {
     var str = "<div class='listItem' onclick='openAlbum("+album.id+")'>";
     str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
     str += "<img src='images/album.png' />";
+    str += "<div class='album-owner'>Owner: " + album.owner.username + "</div>";
     str += "</div></div></div>";
     str += "<div class='listItemName' title='"+album.name+"'>"+album.name+"</div></div>";
     return str;

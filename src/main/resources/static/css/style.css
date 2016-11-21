@@ -134,6 +134,13 @@ body {
     height: 90px;
 }
 
+.album-owner {
+    position: relative;
+    top: -70px;
+    left: 0px;
+    z-index: 100;
+}
+
 #albums-list, #groups-list, #group-details {
     padding: 16px;
     clear: both;
