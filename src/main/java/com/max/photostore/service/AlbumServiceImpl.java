@@ -127,7 +127,7 @@ public class AlbumServiceImpl implements AlbumService {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
 
-            zipAlbum(zipOutputStream, album, "");
+            zipAlbum(zipOutputStream, album, album.getName(), new HashSet<>());
             zipOutputStream.finish();
             return byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
@@ -165,18 +165,35 @@ public class AlbumServiceImpl implements AlbumService {
         albumRepository.delete(albumList);
     }
 
-    private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix) throws IOException {
-        zipOutputStream.putNextEntry(new ZipEntry(pathPrefix + "/" + picture.getName()));
+    private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix, final HashSet<String> usedEntryNames) throws IOException {
+        String entryName = makeEntryNameUnique(pathPrefix + "/" + picture.getName(), usedEntryNames);
+        zipOutputStream.putNextEntry(new ZipEntry(entryName));
         zipOutputStream.write(picture.getOriginalContent());
         zipOutputStream.closeEntry();
     }
 
-    private void zipAlbum(ZipOutputStream zipOutputStream, final Album album, final String pathPrefix) throws IOException {
+    private void zipAlbum(ZipOutputStream zipOutputStream, final Album album, final String pathPrefix, final HashSet<String> usedEntryNames) throws IOException {
         for(Picture picture: album.getPictureList()) {
-            zipPicture(zipOutputStream, picture, pathPrefix);
+            zipPicture(zipOutputStream, picture, pathPrefix, usedEntryNames);
         }
         for(Album childAlbum: album.getAlbumList()) {
-            zipAlbum(zipOutputStream, childAlbum, pathPrefix + "/" + childAlbum.getName());
+            zipAlbum(zipOutputStream, childAlbum, pathPrefix + "/" + childAlbum.getName(), usedEntryNames);
         }
+    }
+
+    private String makeEntryNameUnique(final String name, final HashSet<String> usedEntryNames) {
+        if( ! usedEntryNames.contains(name)) {
+            usedEntryNames.add(name);
+            return name;
+        }
+        final String extension = name.substring(name.lastIndexOf('.'));
+        final String nameWithoutExtension = name.substring(0, name.lastIndexOf('.'));
+        String uniqueName;
+        int counter = 1;
+        do {
+            uniqueName = nameWithoutExtension + "(" + counter + ")" + extension;
+        } while(usedEntryNames.contains(uniqueName));
+        usedEntryNames.add(uniqueName);
+        return uniqueName;
     }
 }
