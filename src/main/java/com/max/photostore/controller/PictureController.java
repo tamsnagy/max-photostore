@@ -32,7 +32,6 @@ class PictureController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/{albumId}")
     ResponseEntity<?> uploadPicture(@PathVariable Long albumId, @RequestParam("uploadfile") MultipartFile uploadfile, Principal principal) {
-        //TODO validate upload
         try {
             final String fileName = uploadfile.getOriginalFilename();
             final String extension = Picture.extension(fileName);
@@ -51,7 +50,6 @@ class PictureController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{pictureId}")
     ResponseEntity<?> updatePicture(@RequestBody UpdatePicture updatePicture, @PathVariable Long pictureId, Principal principal) {
-        //TODO validate update
         try {
             pictureService.updatePicture(pictureId, updatePicture, principal.getName());
             return ResponseEntity.ok().build();

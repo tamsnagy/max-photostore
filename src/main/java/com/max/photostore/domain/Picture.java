@@ -81,7 +81,6 @@ public class Picture {
 
     public void update(UpdatePicture picture) {
         this.location = picture.location;
-        this.name = picture.name;
         this.note = picture.note;
         this.timestamp = picture.timestamp;
     }
