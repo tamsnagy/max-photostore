@@ -20,11 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -136,6 +133,24 @@ public class AlbumServiceImpl implements AlbumService {
         } catch (IOException e) {
             throw new InternalServerErrorException(e);
         }
+    }
+
+    @Override
+    public void shareAlbum(long albumId, long groupId, Principal principal) throws PhotostoreException {
+        Album album = albumRepository.findOne(albumId);
+        if (album == null)
+            throw new PhotostoreException("Album not found");
+        if (!album.getOwner().getUsername().equals(principal.getName()))
+            throw new PhotostoreException("Only the album's owner can share it");
+        AppGroup group = groupRepository.findOne(groupId);
+        if (group == null)
+            throw new PhotostoreException("Group not found");
+        if (group.getAlbums() == null)
+            group.setAlbums(new ArrayList<>());
+        if (group.getAlbums().contains(album))
+            throw new PhotostoreException("This album is already shared with the group");
+        group.getAlbums().add(album);
+        groupRepository.save(group);
     }
 
     private void deleteAlbumsAndPhotos(Album album){

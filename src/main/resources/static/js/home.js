@@ -164,7 +164,7 @@ function listAlbums() {
 
     jqxhr.done(function (albumList) {
         $("#download-album-button").css("display", "none");
-        $("#share-album-button").css("display", "none");
+        $("#share-album-div").css("display", "none");
         $("#upload-file-div").css("display", "none");
 
         var albumsListDiv = $("#albums-list");
@@ -192,11 +192,11 @@ function openAlbum(id) {
             var albumsList = $("#albums-list");
             albumsList.html("");
 
-            $("#share-album-button").css("display", "");
             $("#upload-file-div").css("display", "");
 
             var downloadAlbumButton = $("#download-album-button");
             downloadAlbumButton.css("display", "none");
+
             albumsList.append(createAlbumGoBackItem(album.parent));
             if (album.albumList.length != 0 || album.pictureList.length != 0) {
                 downloadAlbumButton.css("display", "");
@@ -207,6 +207,13 @@ function openAlbum(id) {
             } else {
                 downloadAlbumButton.css("display", "none");
             }
+
+            if (album.parent == null) {
+                populateGroupSelector();
+                $("#share-album-div").css("display", "");
+            } else
+                $("#share-album-div").css("display", "none");
+
             albumsList.append(
                 $.map(album.albumList, createAlbumItem).join("")
             );
@@ -217,6 +224,21 @@ function openAlbum(id) {
             globalState.currentAlbum = album.id;
         });
     }
+}
+
+function populateGroupSelector() {
+    $.ajax({
+        url: "/api/group/",
+        type: "GET",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            $("#group-selector").html("");
+            $.each(xhr.data, function(i, item) {
+                $("#group-selector").append("<option value='"+item.id+"'>"+item.name+"</option>");
+            });
+        }
+    });
 }
 
 function createAlbum() {
@@ -371,13 +393,9 @@ function openGroup(id) {
 
             $("#group-details-name").html(group.name);
             $("#group-details-owner").html(group.owner.username);
-            $.each(group.albums, function(i, item) {
-                $("#group-details-albums").append("<li>"+item.name+"</li>");
-            });
             $.each(group.members, function(i, item) {
                 $("#group-details-members").append("<li>"+item.username+" <a href='javascript:removeMember("+item.id+");'>Remove</a></li>");
             });
-
 
             $("#delete-group-button").off("click").on("click", function() {
                 deleteGroup();
@@ -387,6 +405,22 @@ function openGroup(id) {
 
             $("#groups-list-container").css("display", "none");
             $("#group-details-container").css("display", "");
+
+            getGroupAlbums();
+        }
+    });
+}
+
+function getGroupAlbums() {
+    $.ajax({
+        url: "/api/group/"+currentGroup+"/albums",
+        type: "GET",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            $.each(xhr, function(i, item) {
+                $("#group-details-albums").append("<li>"+item.name+"</li>");
+            });
         }
     });
 }
@@ -441,6 +475,28 @@ function addMember(id) {
         contentType: "application/json",
         success: function(xhr, status, error) {
             openGroup(currentGroup);
+        },
+        error: function(xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+function shareAlbum() {
+    var selectedGroup = $("#group-selector option:selected");
+    if (selectedGroup == null || selectedGroup === undefined) {
+        alert("Select a group first");
+        return;
+    }
+
+    $.ajax({
+        url: "/api/album/"+globalState.currentAlbum+"/share",
+        type: "POST",
+        data: JSON.stringify({"groupId":selectedGroup.val()}),
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            alert("Album successfully shared with group");
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);

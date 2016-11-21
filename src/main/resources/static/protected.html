@@ -47,8 +47,9 @@
                     <span id="upload-file-message"></span>
                 </form>
             </div>
-            <div style="float: left;">
-                <button id="share-album-button" class="smallbutton" style="display: none;margin: 10px;">Share album</button>
+            <div style="float: left;display: none;" id="share-album-div">
+                <select id="group-selector" style="color:black;"></select>
+                <button id="share-album-button" onclick="shareAlbum();" class="smallbutton" style="margin: 10px;">Share album</button>
             </div>
         </div>
         <div id="albums-list"></div>

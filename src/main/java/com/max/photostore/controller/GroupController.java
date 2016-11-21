@@ -82,4 +82,14 @@ public class GroupController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @RequestMapping(value = "/{groupId}/albums", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getAlbums(@PathVariable long groupId, Principal principal) {
+        try {
+            return ResponseEntity.ok(groupService.getAlbums(groupId, principal));
+        } catch (GroupException e) {
+            return e.buildResponse();
+        }
+    }
 }
