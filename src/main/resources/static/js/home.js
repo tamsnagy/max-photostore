@@ -148,7 +148,7 @@ function createAlbumItem(album) {
 }
 
 function createPictureItem(picture) {
-    var str = "<div class='listItem' onclick='openPicture("+picture.id+")'>";
+    var str = "<div class='listItem' onclick='openPicture("+picture.id+","+picture.albumId+")'>";
     str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
     str += "<img src='data:image/jpeg;base64," + picture.content + "' />";
     str += "</div></div></div>";
@@ -309,7 +309,7 @@ function uploadPicture(){
     }
 }
 
-function openPicture(id) {
+function openPicture(id, albumId) {
     var jqxhr = $.get({
         url: "/api/picture/" + id,
         cache: "false",
@@ -320,11 +320,20 @@ function openPicture(id) {
         $("#image-view-content").html("<img src='data:image/jpeg;base64," + picture.originalContent + "' />");
         $("#image-view").css("display", "");
 
-        // TODO download button
         $("#download-picture-button").off("click").on("click", function(e) {
             e.preventDefault();
             window.location.href = "/api/picture/" + picture.id + "/download";
         });
+        var deletePictureButton = $("#delete-picture-button");
+        deletePictureButton.off("click").on("click", function(e) {
+            e.preventDefault();
+            deletePicture(albumId, picture.id);
+        });
+        if(picture.owner.id == userId()) {
+            deletePictureButton.css("display", "");
+        } else {
+            deletePictureButton.css("display", "none");
+        }
     });
 }
 
@@ -531,6 +540,22 @@ function deleteAlbum(albumId, parentId) {
         cache: "false",
         contentType: "application/json",
         success: function(xhr, status, error) {
+            openAlbum(parentId);
+        },
+        error: function () {
+            alert("Album is shared. You can not delete it.");
+        }
+    });
+}
+
+function deletePicture(parentId, pictureId) {
+    $.ajax({
+        url: "/api/picture/"+pictureId,
+        type: "DELETE",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            closePicture();
             openAlbum(parentId);
         },
         error: function () {

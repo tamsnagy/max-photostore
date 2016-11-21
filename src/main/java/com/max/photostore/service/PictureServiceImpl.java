@@ -13,6 +13,7 @@ import com.max.photostore.repository.GroupRepository;
 import com.max.photostore.repository.PictureRepository;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.UpdatePicture;
+import com.max.photostore.response.GetFullPicture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,6 +122,11 @@ public class PictureServiceImpl implements PictureService {
     }
 
     @Override
+    public GetFullPicture getFullPicture(Long pictureId, String username) throws PhotostoreException {
+        return new GetFullPicture(getPicture(pictureId, username));
+    }
+
+    @Override
     public void deletePicture(Long pictureId, String username) throws PhotostoreException {
         AppUser user = userRepository.findOneByUsername(username);
         if(user == null) {
@@ -134,9 +140,6 @@ public class PictureServiceImpl implements PictureService {
             throw new AccessDeniedException("User cannot delete picture with id " + pictureId);
         }
 
-        Album parentAlbum = picture.getAlbum();
-        parentAlbum.getPictureList().remove(picture);
-        albumRepository.save(parentAlbum);
         pictureRepository.delete(pictureId);
     }
 
