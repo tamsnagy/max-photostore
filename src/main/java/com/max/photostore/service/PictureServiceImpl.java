@@ -1,6 +1,7 @@
 package com.max.photostore.service;
 
 import com.max.photostore.domain.Album;
+import com.max.photostore.domain.AppGroup;
 import com.max.photostore.domain.AppUser;
 import com.max.photostore.domain.Picture;
 import com.max.photostore.exception.AccessDeniedException;
@@ -8,6 +9,7 @@ import com.max.photostore.exception.InternalServerErrorException;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.exception.ResourceMissingException;
 import com.max.photostore.repository.AlbumRepository;
+import com.max.photostore.repository.GroupRepository;
 import com.max.photostore.repository.PictureRepository;
 import com.max.photostore.repository.UserRepository;
 import com.max.photostore.request.UpdatePicture;
@@ -22,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -31,14 +34,17 @@ public class PictureServiceImpl implements PictureService {
     private final AlbumRepository albumRepository;
     private final UserRepository userRepository;
     private final ScaleService scaleService;
+    private final GroupRepository groupRepository;
 
     @Autowired
     public PictureServiceImpl(PictureRepository pictureRepository, AlbumRepository albumRepository,
-                              UserRepository userRepository, ScaleService scaleService) {
+                              UserRepository userRepository, ScaleService scaleService,
+                              GroupRepository groupRepository) {
         this.pictureRepository = pictureRepository;
         this.albumRepository = albumRepository;
         this.userRepository = userRepository;
         this.scaleService = scaleService;
+        this.groupRepository = groupRepository;
     }
 
     @Override
@@ -47,7 +53,7 @@ public class PictureServiceImpl implements PictureService {
         AppUser user = userRepository.findOneByUsername(owner);
         Album parentAlbum = albumRepository.findOne(albumId);
 
-        validateAccess(user, parentAlbum);
+        validateWriteAccess(user, parentAlbum);
 
         Picture picture = new Picture(originalFilename, scaleService.scale(bytes), bytes, user, parentAlbum);
         picture = pictureRepository.save(picture);
@@ -56,7 +62,25 @@ public class PictureServiceImpl implements PictureService {
         return picture.getId();
     }
 
-    private void validateAccess(AppUser user, Album parentAlbum) throws PhotostoreException {
+    private void validateReadAccess(AppUser user, Album parentAlbum) throws PhotostoreException {
+        if(user == null){
+            throw new ResourceMissingException("User not found");
+        }
+        if(parentAlbum == null) {
+            throw new ResourceMissingException("Album not found");
+        }
+        if(user.equals(parentAlbum.getOwner())) {
+            return;
+        }
+        List<AppGroup> groupsAllowingToRead = groupRepository.findByMembersInAndAlbumsIn(
+                Collections.singletonList(user),
+                Collections.singletonList(parentAlbum));
+        if(groupsAllowingToRead.isEmpty()) {
+            throw new AccessDeniedException("User does not have read access to this album");
+        }
+    }
+
+    private void validateWriteAccess(AppUser user, Album parentAlbum) throws PhotostoreException {
         if(user == null){
             throw new ResourceMissingException("User not found");
         }
@@ -74,7 +98,7 @@ public class PictureServiceImpl implements PictureService {
         Picture picture = pictureRepository.findOne(id);
         AppUser user = userRepository.findOneByUsername(username);
         Album parentAlbum = albumRepository.findOneByPictureListIn(Collections.singletonList(picture));
-        validateAccess(user, parentAlbum);
+        validateWriteAccess(user, parentAlbum);
         if(picture == null) {
             throw new ResourceMissingException("Picture with id " + id + " not found");
         }
@@ -88,7 +112,7 @@ public class PictureServiceImpl implements PictureService {
         Picture picture = pictureRepository.findOne(pictureId);
         AppUser user = userRepository.findOneByUsername(username);
         Album parentAlbum = albumRepository.findOneByPictureListIn(Collections.singletonList(picture));
-        validateAccess(user, parentAlbum);
+        validateReadAccess(user, parentAlbum);
 
         if(picture == null) {
             throw new ResourceMissingException("Picture with id " + pictureId + " not found");
@@ -120,13 +144,9 @@ public class PictureServiceImpl implements PictureService {
     @Transactional
     public void uploadZip(byte[] bytes, String fileName, String username, Long albumId) throws PhotostoreException {
         AppUser user = userRepository.findOneByUsername(username);
-        if(user == null){
-            throw new ResourceMissingException("User not found");
-        }
         Album parentAlbum = albumRepository.findOne(albumId);
-        if(parentAlbum == null) {
-            throw new ResourceMissingException("Album not found with id " + albumId);
-        }
+        validateWriteAccess(user, parentAlbum);
+
         try(ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(bytes))){
             ZipEntry entry = null;
             while ((entry = zipStream.getNextEntry()) != null) {

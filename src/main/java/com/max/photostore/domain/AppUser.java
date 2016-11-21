@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,11 +30,11 @@ public class AppUser {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     @JsonBackReference
-    private List<AppGroup> ownedGroups;
+    private List<AppGroup> ownedGroups = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "members")
     @JsonBackReference
-    private List<AppGroup> groups;
+    private List<AppGroup> groups = new ArrayList<>();
 
     public AppUser(String username, String email, byte[] password, byte[] salt) {
         this.username = username;

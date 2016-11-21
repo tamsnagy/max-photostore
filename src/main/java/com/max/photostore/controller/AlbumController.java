@@ -60,7 +60,7 @@ class AlbumController {
     ResponseEntity<?> getAlbum(@PathVariable Long albumId, Principal principal) {
         //TODO can I see that album??
         try {
-            return ResponseEntity.ok(albumService.getAlbum(albumId));
+            return ResponseEntity.ok(albumService.getAlbum(albumId, principal.getName()));
         } catch (PhotostoreException e) {
             return ResponseEntity.notFound().build();
         }
@@ -79,8 +79,8 @@ class AlbumController {
     @RequestMapping(method = RequestMethod.GET, value = "/{albumId}/download")
     void downloadAlbum(HttpServletResponse response, @PathVariable Long albumId, Principal principal) throws IOException, PhotostoreException {
         //TODO can I see that album??
-        GetAlbum album = albumService.getAlbum(albumId);
-        byte[] content = albumService.zipAlbum(albumId);
+        GetAlbum album = albumService.getAlbum(albumId, principal.getName());
+        byte[] content = albumService.zipAlbum(albumId, principal.getName());
         response.setContentLength(content.length);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + album.name + ".zip\"");
         response.setContentType("application/zip");

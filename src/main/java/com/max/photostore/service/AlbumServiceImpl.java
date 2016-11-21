@@ -66,12 +66,29 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public GetAlbum getAlbum(Long albumId) throws PhotostoreException {
+    public GetAlbum getAlbum(Long albumId, String username) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null) {
             throw new ResourceMissingException("Album does not exist");
         }
+        AppUser user = userRepository.findOneByUsername(username);
+        if(user == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        validateReadAccess(album, user);
         return new GetAlbum(album);
+    }
+
+    private void validateReadAccess(Album album, AppUser user) throws AccessDeniedException{
+        if(user.equals(album.getOwner())) {
+            return;
+        }
+        List<AppGroup> groupsAllowingToRead = groupRepository.findByMembersInAndAlbumsIn(
+                Collections.singletonList(user),
+                Collections.singletonList(album));
+        if(groupsAllowingToRead.isEmpty()) {
+            throw new AccessDeniedException("User does not have read access to this album");
+        }
     }
 
     @Override
@@ -118,11 +135,16 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public byte[] zipAlbum(Long albumId) throws PhotostoreException {
+    public byte[] zipAlbum(Long albumId, String username) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null) {
             throw new ResourceMissingException("Album does not exist");
         }
+        AppUser user = userRepository.findOneByUsername(username);
+        if(user == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        validateReadAccess(album, user);
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
@@ -136,6 +158,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @Transactional
     public void shareAlbum(long albumId, long groupId, Principal principal) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null)
@@ -149,8 +172,15 @@ public class AlbumServiceImpl implements AlbumService {
             group.setAlbums(new ArrayList<>());
         if (group.getAlbums().contains(album))
             throw new PhotostoreException("This album is already shared with the group");
-        group.getAlbums().add(album);
+        group.getAlbums().addAll(getAllChilds(album));
         groupRepository.save(group);
+    }
+
+    private List<Album> getAllChilds(Album album){
+        final List<Album> albums = new ArrayList<>();
+        album.getAlbumList().forEach(childAlbum -> albums.addAll(getAllChilds(childAlbum)));
+        albums.add(album);
+        return albums;
     }
 
     private void deleteAlbumsAndPhotos(Album album){
