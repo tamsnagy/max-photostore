@@ -141,13 +141,14 @@ function createAlbumItem(album) {
     var str = "<div class='listItem' onclick='openAlbum("+album.id+")'>";
     str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
     str += "<img src='images/album.png' />";
+    str += "<div class='album-owner'>Owner: " + album.owner.username + "</div>";
     str += "</div></div></div>";
     str += "<div class='listItemName' title='"+album.name+"'>"+album.name+"</div></div>";
     return str;
 }
 
 function createPictureItem(picture) {
-    var str = "<div class='listItem' onclick='openPicture("+picture.id+")'>";
+    var str = "<div class='listItem' onclick='openPicture("+picture.id+","+picture.albumId+")'>";
     str += "<div class='listItemImage'><div style='width:180px;height:180px;display:table;overflow:hidden;'><div style='display:table-cell;vertical-align:middle;'>";
     str += "<img src='data:image/jpeg;base64," + picture.content + "' />";
     str += "</div></div></div>";
@@ -163,7 +164,9 @@ function listAlbums() {
     });
 
     jqxhr.done(function (albumList) {
+        $("#create-album").css("display", "");
         $("#download-album-button").css("display", "none");
+        $("#delete-album-button").css("display", "none");
         $("#share-album-div").css("display", "none");
         $("#upload-file-div").css("display", "none");
 
@@ -192,12 +195,29 @@ function openAlbum(id) {
             var albumsList = $("#albums-list");
             albumsList.html("");
 
-            $("#upload-file-div").css("display", "");
 
             var downloadAlbumButton = $("#download-album-button");
             downloadAlbumButton.css("display", "none");
 
+            var deleteAlbumButton = $("#delete-album-button");
+            deleteAlbumButton.css("display", "none");
+
+            var uploadFileDiv = $("#upload-file-div");
+
+            if(album.owner.id == userId()) {
+                uploadFileDiv.css("display", "")
+                deleteAlbumButton.css("display", "");
+                deleteAlbumButton.off("click").on("click", function (e) {
+                    e.preventDefault();
+                    deleteAlbum(album.id, album.parent);
+                });
+            } else {
+                $("#create-album").css("display", "none");
+                uploadFileDiv.css("display", "none");
+            }
+
             albumsList.append(createAlbumGoBackItem(album.parent));
+
             if (album.albumList.length != 0 || album.pictureList.length != 0) {
                 downloadAlbumButton.css("display", "");
                 downloadAlbumButton.off("click").on("click", function(e) {
@@ -208,7 +228,7 @@ function openAlbum(id) {
                 downloadAlbumButton.css("display", "none");
             }
 
-            if (album.parent == null) {
+            if (album.parent == null && album.owner.id == userId()) {
                 populateGroupSelector();
                 $("#share-album-div").css("display", "");
             } else
@@ -289,7 +309,7 @@ function uploadPicture(){
     }
 }
 
-function openPicture(id) {
+function openPicture(id, albumId) {
     var jqxhr = $.get({
         url: "/api/picture/" + id,
         cache: "false",
@@ -300,11 +320,20 @@ function openPicture(id) {
         $("#image-view-content").html("<img src='data:image/jpeg;base64," + picture.originalContent + "' />");
         $("#image-view").css("display", "");
 
-        // TODO download button
         $("#download-picture-button").off("click").on("click", function(e) {
             e.preventDefault();
             window.location.href = "/api/picture/" + picture.id + "/download";
         });
+        var deletePictureButton = $("#delete-picture-button");
+        deletePictureButton.off("click").on("click", function(e) {
+            e.preventDefault();
+            deletePicture(albumId, picture.id);
+        });
+        if(picture.owner.id == userId()) {
+            deletePictureButton.css("display", "");
+        } else {
+            deletePictureButton.css("display", "none");
+        }
     });
 }
 
@@ -500,6 +529,37 @@ function shareAlbum() {
         },
         error: function(xhr, status, error) {
             alert(xhr.responseText);
+        }
+    });
+}
+
+function deleteAlbum(albumId, parentId) {
+    $.ajax({
+        url: "/api/album/"+albumId,
+        type: "DELETE",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            openAlbum(parentId);
+        },
+        error: function () {
+            alert("Album is shared. You can not delete it.");
+        }
+    });
+}
+
+function deletePicture(parentId, pictureId) {
+    $.ajax({
+        url: "/api/picture/"+pictureId,
+        type: "DELETE",
+        cache: "false",
+        contentType: "application/json",
+        success: function(xhr, status, error) {
+            closePicture();
+            openAlbum(parentId);
+        },
+        error: function () {
+            alert("Delete failed");
         }
     });
 }

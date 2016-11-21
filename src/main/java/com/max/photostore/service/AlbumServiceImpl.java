@@ -66,12 +66,29 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public GetAlbum getAlbum(Long albumId) throws PhotostoreException {
+    public GetAlbum getAlbum(Long albumId, String username) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null) {
             throw new ResourceMissingException("Album does not exist");
         }
+        AppUser user = userRepository.findOneByUsername(username);
+        if(user == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        validateReadAccess(album, user);
         return new GetAlbum(album);
+    }
+
+    private void validateReadAccess(Album album, AppUser user) throws AccessDeniedException{
+        if(user.equals(album.getOwner())) {
+            return;
+        }
+        List<AppGroup> groupsAllowingToRead = groupRepository.findByMembersInAndAlbumsIn(
+                Collections.singletonList(user),
+                Collections.singletonList(album));
+        if(groupsAllowingToRead.isEmpty()) {
+            throw new AccessDeniedException("User does not have read access to this album");
+        }
     }
 
     @Override
@@ -108,26 +125,25 @@ public class AlbumServiceImpl implements AlbumService {
         if(! album.getOwner().equals(owner)) {
             throw new AccessDeniedException("User " + name + " does not have right to delete album " + albumId);
         }
-        Album parentAlbum = album.getParent();
-        deleteAlbumsAndPhotos(album);
-        if(parentAlbum != null) {
-            parentAlbum.getAlbumList().remove(album);
-            albumRepository.save(parentAlbum);
-        }
         albumRepository.delete(album);
     }
 
     @Override
-    public byte[] zipAlbum(Long albumId) throws PhotostoreException {
+    public byte[] zipAlbum(Long albumId, String username) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null) {
             throw new ResourceMissingException("Album does not exist");
         }
+        AppUser user = userRepository.findOneByUsername(username);
+        if(user == null) {
+            throw new ResourceMissingException("User not found with username " + user);
+        }
+        validateReadAccess(album, user);
 
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
 
-            zipAlbum(zipOutputStream, album, "");
+            zipAlbum(zipOutputStream, album, album.getName(), new HashSet<>());
             zipOutputStream.finish();
             return byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
@@ -136,6 +152,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @Transactional
     public void shareAlbum(long albumId, long groupId, Principal principal) throws PhotostoreException {
         Album album = albumRepository.findOne(albumId);
         if (album == null)
@@ -149,34 +166,46 @@ public class AlbumServiceImpl implements AlbumService {
             group.setAlbums(new ArrayList<>());
         if (group.getAlbums().contains(album))
             throw new PhotostoreException("This album is already shared with the group");
-        group.getAlbums().add(album);
+        group.getAlbums().addAll(getAllChilds(album));
         groupRepository.save(group);
     }
 
-    private void deleteAlbumsAndPhotos(Album album){
-        List<Picture> pictureList = album.getPictureList();
-        if(pictureList != null){
-            pictureRepository.delete(pictureList);
-        }
-        List<Album> albumList = album.getAlbumList();
-        if(albumList != null){
-            albumList.forEach(this::deleteAlbumsAndPhotos);
-        }
-        albumRepository.delete(albumList);
+    private List<Album> getAllChilds(Album album){
+        final List<Album> albums = new ArrayList<>();
+        album.getAlbumList().forEach(childAlbum -> albums.addAll(getAllChilds(childAlbum)));
+        albums.add(album);
+        return albums;
     }
 
-    private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix) throws IOException {
-        zipOutputStream.putNextEntry(new ZipEntry(pathPrefix + "/" + picture.getName()));
+    private void zipPicture(ZipOutputStream zipOutputStream, final Picture picture, final String pathPrefix, final HashSet<String> usedEntryNames) throws IOException {
+        String entryName = makeEntryNameUnique(pathPrefix + "/" + picture.getName(), usedEntryNames);
+        zipOutputStream.putNextEntry(new ZipEntry(entryName));
         zipOutputStream.write(picture.getOriginalContent());
         zipOutputStream.closeEntry();
     }
 
-    private void zipAlbum(ZipOutputStream zipOutputStream, final Album album, final String pathPrefix) throws IOException {
+    private void zipAlbum(ZipOutputStream zipOutputStream, final Album album, final String pathPrefix, final HashSet<String> usedEntryNames) throws IOException {
         for(Picture picture: album.getPictureList()) {
-            zipPicture(zipOutputStream, picture, pathPrefix);
+            zipPicture(zipOutputStream, picture, pathPrefix, usedEntryNames);
         }
         for(Album childAlbum: album.getAlbumList()) {
-            zipAlbum(zipOutputStream, childAlbum, pathPrefix + "/" + childAlbum.getName());
+            zipAlbum(zipOutputStream, childAlbum, pathPrefix + "/" + childAlbum.getName(), usedEntryNames);
         }
+    }
+
+    private String makeEntryNameUnique(final String name, final HashSet<String> usedEntryNames) {
+        if( ! usedEntryNames.contains(name)) {
+            usedEntryNames.add(name);
+            return name;
+        }
+        final String extension = name.substring(name.lastIndexOf('.'));
+        final String nameWithoutExtension = name.substring(0, name.lastIndexOf('.'));
+        String uniqueName;
+        int counter = 1;
+        do {
+            uniqueName = nameWithoutExtension + "(" + counter + ")" + extension;
+        } while(usedEntryNames.contains(uniqueName));
+        usedEntryNames.add(uniqueName);
+        return uniqueName;
     }
 }

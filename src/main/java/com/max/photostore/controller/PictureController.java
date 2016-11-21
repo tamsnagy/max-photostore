@@ -3,6 +3,7 @@ package com.max.photostore.controller;
 import com.max.photostore.domain.Picture;
 import com.max.photostore.exception.PhotostoreException;
 import com.max.photostore.request.UpdatePicture;
+import com.max.photostore.response.GetFullPicture;
 import com.max.photostore.service.PictureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -63,7 +64,7 @@ class PictureController {
     @RequestMapping(method = RequestMethod.GET, value = "/{pictureId}")
     ResponseEntity<?> getPicture(@PathVariable Long pictureId, Principal principal) {
         try {
-            return ResponseEntity.ok(pictureService.getPicture(pictureId, principal.getName()));
+            return ResponseEntity.ok(pictureService.getFullPicture(pictureId, principal.getName()));
         } catch (PhotostoreException e) {
             return e.buildResponse();
         }

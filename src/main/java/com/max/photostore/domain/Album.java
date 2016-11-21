@@ -23,20 +23,21 @@ public class Album {
     private AppUser owner;
 
     @ManyToOne
+    @JoinColumn(name = "parent_album_id")
     @JsonBackReference
     private Album parent;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "album")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "album")
     @JsonManagedReference
-    private List<Picture> pictureList;
+    private List<Picture> pictureList = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parent")
     @JsonManagedReference
-    private List<Album> albumList;
+    private List<Album> albumList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "albums")
     @JsonManagedReference
-    private List<AppGroup> groups;
+    private List<AppGroup> groups = new ArrayList<>();
 
     public Album(String name, Date timestamp, AppUser owner, Album parent, List<Picture> pictureList, List<Album> albumList) {
         this.name = name;

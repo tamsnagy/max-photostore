@@ -23,11 +23,11 @@ public class AppGroup {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<AppUser> members;
+    private List<AppUser> members = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonBackReference
-    private List<Album> albums;
+    private List<Album> albums = new ArrayList<>();
 
     public AppGroup(String name, AppUser owner) {
         this.name = name;
